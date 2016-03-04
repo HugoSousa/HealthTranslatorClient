@@ -4,9 +4,9 @@ $(document).ready(function(){
 		
 		$('.medical-term-translate[data-toggle="tooltip"]').tooltip({
 		    trigger: 'manual',
-		    animation: false
+		    animation: false,
+		    placement: "auto right"
 		}).on("mouseenter", function () {
-			console.log("SHOW");
 	        var _this = this;
 	        $(this).tooltip("show");
 	        
@@ -15,11 +15,9 @@ $(document).ready(function(){
 	        });
 
 	    }).on("mouseleave", function () {
-	    	console.log("HIDE");
 	        var _this = this;
 
 	        setTimeout(function () {
-	        	console.log("finished timeout");
 	            if (!$(".tooltip:hover").length) {
 	                $(_this).tooltip("hide");
 	            }
