@@ -79,7 +79,7 @@ function processDocument(data, sendResponse){
     });
 }
 
-function getDetails(data){
+function getDetails(data, sendResponse){
 
     console.log(data);
 

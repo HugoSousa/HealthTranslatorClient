@@ -2,10 +2,30 @@ $(document).ready(function(){
 
 	function registerEvents(){
 		
-		$('body').tooltip({
-		    selector: '.medical-term-translate',
-		    delay: { "hide": 450 }
-		});
+		$('.medical-term-translate[data-toggle="tooltip"]').tooltip({
+		    trigger: 'manual',
+		    animation: false
+		}).on("mouseenter", function () {
+			console.log("SHOW");
+	        var _this = this;
+	        $(this).tooltip("show");
+	        
+	        $(".tooltip").on("mouseleave", function () {
+	            $(_this).tooltip('hide');
+	        });
+
+	    }).on("mouseleave", function () {
+	    	console.log("HIDE");
+	        var _this = this;
+
+	        setTimeout(function () {
+	        	console.log("finished timeout");
+	            if (!$(".tooltip:hover").length) {
+	                $(_this).tooltip("hide");
+	            }
+        	}, 300);
+	    });
+
 
 		$('body').on('click', '.tooltip a', function(){
 			console.log("Abri um tooltip");
@@ -17,7 +37,10 @@ $(document).ready(function(){
 				body: term
 			};
 
-			chrome.runtime.sendMessage({action: "getDetails", data: bodyData});
+			chrome.runtime.sendMessage({action: "details", data: bodyData}, function(response){
+				console.log("here");
+				$('#myModalLabel').text(term);
+			});
 			/*
 			//ajax request with the medical concept
 			$.ajax({
