@@ -39,37 +39,7 @@ $(document).ready(function(){
 				console.log("here");
 				$('#myModalLabel').text(term);
 			});
-			/*
-			//ajax request with the medical concept
-			$.ajax({
-			  url: "http://localhost:8080/JavaRESTTest/webresources/details",
-			  type: "POST",
-			  data: JSON.stringify(bodyData),
-			  dataType: 'json',
-			  contentType: "application/json",
-			  cache: false,
-			  success: function(result){
-			  	console.log("RESULT: \n" + result.result);
-
-			  	//set the modal title with the term
-			  	$('#myModalLabel').text(term);
-			  },
-			  error: function(error){
-			  	console.log("ERROR: " + error);
-			  }
-			});
-			*/
 		});
-
-		/*
-		$('#myModal').on('shown.bs.modal', function() {
-		    console.log("a modal was opened");
-
-		    //get the concept that was selected and get that information
-		});
-		*/
-
-		
 	};
 	
 
@@ -80,60 +50,16 @@ $(document).ready(function(){
 	chrome.runtime.sendMessage({action: "processDocument", data: bodyData}, function(response){
 		console.log("SUCCESSFULY RETURNED BODY");
 
-		//TODO only if there are annotated concepts (return json field with concepts count and processing time)
-		$("body").html(response.result);
-	  	$('body').append(modal); 
+		if(response.conceptCounter > 0){
+			$("body").html(response.body);
+		  	$('body').append(modal); 
 
-	  	registerEvents();
+		  	registerEvents();
+	  	}
+
+	  	
 	});
-	/*
-	$.ajax({
-	  url: "http://localhost:8080/JavaRESTTest/webresources/process",
-	  type: "POST",
-	  data: JSON.stringify(bodyData),
-	  dataType: 'json',
-	  contentType: "application/json",
-	  cache: false,
-	  success: function(result){
-	  	console.log("SUCCESSFULY RETURNED BODY");
-	  	console.log(result);
-	  	console.log("data: \n" + result.result);
-	  	$("body").html(result.result);
-	  	$('body').append(modal); 
-
-	  	registerEvents();
-	  },
-	  error: function(error){
-	  	console.log("ERROR: " + error);
-	  }
-	});
-	*/
-
 });
-
-console.log("teste");
-
-console.log(document);
-//console.log(childNodes(document));
-
-/*
-function childNodes(element){
-	//only if has some text (non whitespace characters)
-	if(element.nodeType === Node.TEXT_NODE && element.nodeValue.length > 0 && /\S/.test(element.nodeValue)){
-		console.log("NAME: " + element.nodeName + " | " + " VALUE: " + element.nodeValue + " / " + element.nodeValue.length);
-
-		var new_element = element;
-		if(element.nodeValue == "Hypertension")
-			new_element.nodeValue = "CENAS MARADAS";
-
-		element.parentNode.replaceChild(element, new_element);
-	}
-
-	for (var i = 0; i < element.childNodes.length; i++) {
-        childNodes(element.childNodes[i]);
-    }
-}
-*/
 
 var modal="";
 modal += "<!-- Modal -->";
@@ -157,6 +83,4 @@ modal += "  <\/div>";
 modal += "<\/div>";
 modal += "<\/div>";
 
-//$('body').append(modal); 
-//$('modal').hide();
 

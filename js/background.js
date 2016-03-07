@@ -1,37 +1,3 @@
-/*chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-   //alert(changeInfo.url);
-}); 
-*/
-chrome.tabs.onActivated.addListener(function(activeInfo) {
-  // how to fetch tab url using activeInfo.tabid
-  //console.log("TAB ACTIVATED");
-
-  chrome.tabs.query(
-        { currentWindow: true, active: true },
-        function (tabArray) { //tabCallback(tabArray[0]);
-        	//console.log(JSON.stringify(tabArray[0]));
-        }
-    );
-}); 
-
-
-chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab){
-	//console.log(JSON.stringify(changeInfo));
-    if(changeInfo.status != "complete"){
-    	//console.log("do nothing")
-    	return; // URL did not change
-    }
-    // Might be better to analyze the URL to exclude things like anchor changes
-
-    /* ... */
-    //console.log("TAB UPDATED");
-    //console.log(changeInfo.status);
-
-    var number = Math.random() * (10 - 0) + 0;
-    var cenas = parseInt(number).toString();
-    chrome.browserAction.setBadgeText({text: cenas, tabId: tabId});
-});
-
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     console.log("here");
 
@@ -70,7 +36,16 @@ function processDocument(data, sendResponse){
         cache: false,
         success: function(result){
             console.log("return result");
+            console.log("result conceptCounter: " + result.conceptCounter);
+            doInCurrentTab( function(tab){ 
+                chrome.browserAction.setBadgeText({
+                    text: result.conceptCounter.toString(), 
+                    tabId: tab.id
+                });
+            } );
+            
             sendResponse(result);
+
         },
         error: function(error){
             console.log("ERROR: " + error);
@@ -99,4 +74,11 @@ function getDetails(data, sendResponse){
             sendResponse(result);
         }
     });
+}
+
+function doInCurrentTab(tabCallback) {
+    chrome.tabs.query(
+        { currentWindow: true, active: true },
+        function (tabArray) { tabCallback(tabArray[0]); }
+    );
 }
