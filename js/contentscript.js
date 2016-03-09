@@ -2,6 +2,8 @@ $(document).ready(function(){
 
 	function registerEvents(){
 		
+		console.log("REGISTERING TOOLTIPS");
+
 		$('.medical-term-translate[data-toggle="tooltip"]').tooltip({
 		    trigger: 'manual',
 		    animation: false,
@@ -42,20 +44,41 @@ $(document).ready(function(){
 		});
 	};
 	
+	//console.log("BODY: " + $('body').html());
 
 	var bodyData = {
 		body: $('body').html()
+		//body: document.documentElement.outerHTML
 	};
+
+	//console.log("BODY: " + getDocTypeAsString() + document.documentElement.outerHTML );
 
 	chrome.runtime.sendMessage({action: "processDocument", data: bodyData}, function(response){
 		console.log("SUCCESSFULY RETURNED BODY");
-
+		
 		if(response.conceptCounter > 0){
-			$("body").html(response.body);
+
+			var scripts = Array.prototype.slice.call(document.scripts);
+			//console.log(scripts);
+			$('body').html(response.body);
 		  	$('body').append(modal); 
 
+			for(var i = 0; i < scripts.length; i++){
+				console.log(scripts[i]);
+				if( scripts[i].parentNode == null || (scripts[i].parentNode != null && scripts[i].parentNode.localName != 'head')){
+					console.log("CREATE A NEW SCRIPT");
+					var script = document.createElement('script');
+					script.innerHTML = scripts[i].innerHTML;
+					document.body.appendChild(script);
+				}
+			}
+
 		  	registerEvents();
+		  	
 	  	}
+	  	
+	  	//$('html').html(response);
+	  	//document.write(getDocTypeAsString() + response);
 
 	  	
 	});
@@ -83,4 +106,14 @@ modal += "  <\/div>";
 modal += "<\/div>";
 modal += "<\/div>";
 
+
+var getDocTypeAsString = function () { 
+    var node = document.doctype;
+    return node ? "<!DOCTYPE "
+         + node.name
+         + (node.publicId ? ' PUBLIC "' + node.publicId + '"' : '')
+         + (!node.publicId && node.systemId ? ' SYSTEM' : '') 
+         + (node.systemId ? ' "' + node.systemId + '"' : '')
+         + '>\n' : '';
+};
 

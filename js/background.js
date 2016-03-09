@@ -35,9 +35,11 @@ function processDocument(data, sendResponse){
         contentType: "application/json;charset=UTF-8",
         cache: false,
         success: function(result){
+
             console.log("return result");
             console.log("result conceptCounter: " + result.conceptCounter);
             doInCurrentTab( function(tab){ 
+                console.log("TAB: " + tab);
                 chrome.browserAction.setBadgeText({
                     text: result.conceptCounter.toString(), 
                     tabId: tab.id
@@ -45,7 +47,6 @@ function processDocument(data, sendResponse){
             } );
             
             sendResponse(result);
-
         },
         error: function(error){
             console.log("ERROR: " + error);
@@ -78,7 +79,7 @@ function getDetails(data, sendResponse){
 
 function doInCurrentTab(tabCallback) {
     chrome.tabs.query(
-        { currentWindow: true, active: true },
+        { active: true, lastFocusedWindow:true },
         function (tabArray) { tabCallback(tabArray[0]); }
     );
 }
