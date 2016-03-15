@@ -52,9 +52,11 @@ $(document).ready(function(){
 	};
 
 	//console.log("BODY: " + getDocTypeAsString() + document.documentElement.outerHTML );
-
+	console.log("Start Processing.");
+	var t0 = performance.now();
 	chrome.runtime.sendMessage({action: "processDocument", data: bodyData}, function(response){
-		console.log("SUCCESSFULY RETURNED BODY");
+		var t1 = performance.now();
+		console.log("Response is returned after " + (t1 - t0) + "ms.");
 		
 		if(response.conceptCounter > 0){
 
@@ -63,18 +65,24 @@ $(document).ready(function(){
 			$('body').html(response.body);
 		  	$('body').append(modal); 
 
+		  	console.log(document.body);
+		  	
 			for(var i = 0; i < scripts.length; i++){
 				console.log(scripts[i]);
+				console.log(scripts[i].parentNode);
 				if( scripts[i].parentNode == null || (scripts[i].parentNode != null && scripts[i].parentNode.localName != 'head')){
-					console.log("CREATE A NEW SCRIPT");
 					var script = document.createElement('script');
 					script.innerHTML = scripts[i].innerHTML;
+					script.src = scripts[i].src;
 					document.body.appendChild(script);
 				}
+				
 			}
+			
 
 		  	registerEvents();
-		  	
+		  	var t2 = performance.now();
+		  	console.log("Whole processing is finished after " + (t2 - t0) + "ms.");
 	  	}
 	  	
 	  	//$('html').html(response);

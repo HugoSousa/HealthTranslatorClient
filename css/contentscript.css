@@ -3,3 +3,7 @@
 	/*cursor pointer?*/
 	background-color:#FFFF00;
 }
+
+div.tooltip-inner {
+    max-width: 350px !important;
+}
