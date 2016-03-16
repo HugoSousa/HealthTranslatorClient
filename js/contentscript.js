@@ -39,7 +39,7 @@ $(document).ready(function(){
 
 			chrome.runtime.sendMessage({action: "details", data: bodyData}, function(response){
 				console.log("here");
-				$('#myModalLabel').text(term);
+				$('#health-translator-modal-label').text(term);
 			});
 		});
 	};
@@ -95,12 +95,12 @@ $(document).ready(function(){
 var modal="";
 modal += "<!-- Modal -->";
 modal += "<div class=\"health-translator\">";
-modal += "<div class=\"modal fade\" id=\"myModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"myModalLabel\">";
+modal += "<div class=\"modal fade\" id=\"health-translator-modal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"health-translator-modal-label\">";
 modal += "  <div class=\"modal-dialog\" role=\"document\">";
 modal += "    <div class=\"modal-content\">";
 modal += "      <div class=\"modal-header\">";
 modal += "        <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;<\/span><\/button>";
-modal += "        <h4 class=\"modal-title\" id=\"myModalLabel\">Modal title<\/h4>";
+modal += "        <h4 class=\"modal-title\" id=\"health-translator-modal-label\">Modal title<\/h4>";
 modal += "      <\/div>";
 modal += "      <div class=\"modal-body\">";
 modal += "        ...";
@@ -113,15 +113,3 @@ modal += "    <\/div>";
 modal += "  <\/div>";
 modal += "<\/div>";
 modal += "<\/div>";
-
-
-var getDocTypeAsString = function () { 
-    var node = document.doctype;
-    return node ? "<!DOCTYPE "
-         + node.name
-         + (node.publicId ? ' PUBLIC "' + node.publicId + '"' : '')
-         + (!node.publicId && node.systemId ? ' SYSTEM' : '') 
-         + (node.systemId ? ' "' + node.systemId + '"' : '')
-         + '>\n' : '';
-};
-

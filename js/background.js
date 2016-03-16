@@ -50,7 +50,7 @@ function processDocument(data, sendResponse){
         },
         error: function(error){
             console.log("ERROR: " + error);
-            sendResponse(result);
+            sendResponse(error);
         }
     });
 }
@@ -71,8 +71,8 @@ function getDetails(data, sendResponse){
             sendResponse(result);
         },
         error: function(error){
-            console.log("ERROR: " + error);
-            sendResponse(result);
+            console.log("ERROR: " + JSON.stringify(error));
+            sendResponse(error);
         }
     });
 }
