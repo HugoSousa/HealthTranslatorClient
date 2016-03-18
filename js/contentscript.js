@@ -3,6 +3,7 @@ $(document).ready(function(){
 	function registerEvents(){
 		
 		console.log("REGISTERING TOOLTIPS");
+		var timer;
 
 		$('.medical-term-translate[data-toggle="tooltip"]').tooltip({
 		    trigger: 'manual',
@@ -10,7 +11,11 @@ $(document).ready(function(){
 		    placement: "auto right"
 		}).on("mouseenter", function () {
 	        var _this = this;
-	        $(this).tooltip("show");
+
+	        timer = setTimeout(function () {
+                $(_this).tooltip("show");
+        	}, 450);
+	        
 	        
 	        $(".tooltip").on("mouseleave", function () {
 	            $(_this).tooltip('hide');
@@ -18,6 +23,8 @@ $(document).ready(function(){
 
 	    }).on("mouseleave", function () {
 	        var _this = this;
+
+	        clearTimeout(timer);
 
 	        setTimeout(function () {
 	            if (!$(".tooltip:hover").length) {
