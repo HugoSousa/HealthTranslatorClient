@@ -18,7 +18,7 @@
     {
       "matches": ["<all_urls>"],
       "css": [ "css/contentscript.css", "css/scoped-health-translator.css" ],
-      "js": ["js/libs/jquery.min.js", "js/libs/bootstrap.js", "js/contentscript.js"]
+      "js": ["js/libs/jquery.min.js", "js/libs/bootstrap.js", "js/libs/lz-string.min.js", "js/contentscript.js"]
     }
   ],
   "background": {

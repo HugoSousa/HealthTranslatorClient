@@ -25,14 +25,17 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
 function processDocument(data, sendResponse){
 
-    console.log("DATA: " + JSON.stringify(data));
+    //console.log("DATA: " + JSON.stringify(data));
+    var dt = new Date();
+    var time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds() + ":" + dt.getMilliseconds();
+    console.log(time);
 
     $.ajax({
         url: "http://localhost:8080/HealthTranslatorServer/webresources/process",
         type: "POST",
         data: JSON.stringify(data),
         dataType: 'json',
-        contentType: "application/json;charset=UTF-8",
+        contentType: "application/json;charset=UTF-16",
         cache: false,
         success: function(result){
 

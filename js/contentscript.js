@@ -43,16 +43,22 @@ $(document).ready(function(){
 			});
 		});
 	};
-	
-	//console.log("BODY: " + $('body').html());
 
+	//console.log("BODY: " + $('body').html());
+	//console.log($('body').html());
 	var bodyData = {
-		body: $('body').html()
+		//remove scripts in order to remove unnecessary chunks of text in request
+		//scripts are manually added in the response
+		body: LZString.compressToUTF16($('body').find('script').remove().end().html())
 		//body: document.documentElement.outerHTML
 	};
 
+
+
 	//console.log("BODY: " + getDocTypeAsString() + document.documentElement.outerHTML );
 	console.log("Start Processing.");
+	//console.log("BODY: " + bodyData.body);
+	//console.log("DECOMPRESSED BODY: " + LZString.decompress(bodyData.body))
 	var t0 = performance.now();
 	chrome.runtime.sendMessage({action: "processDocument", data: bodyData}, function(response){
 		var t1 = performance.now();
@@ -62,14 +68,16 @@ $(document).ready(function(){
 
 			var scripts = Array.prototype.slice.call(document.scripts);
 			//console.log(scripts);
+			console.log("DATE1: " + new Date().getTime());
 			$('body').html(response.body);
 		  	$('body').append(modal); 
+		  	console.log("DATE2: " + new Date().getTime());
 
-		  	console.log(document.body);
+		  	//console.log(document.body);
 		  	
 			for(var i = 0; i < scripts.length; i++){
-				console.log(scripts[i]);
-				console.log(scripts[i].parentNode);
+				//console.log(scripts[i]);
+				//console.log(scripts[i].parentNode);
 				if( scripts[i].parentNode == null || (scripts[i].parentNode != null && scripts[i].parentNode.localName != 'head')){
 					var script = document.createElement('script');
 					script.innerHTML = scripts[i].innerHTML;
