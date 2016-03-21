@@ -35,20 +35,60 @@ $(document).ready(function(){
 
 
 		$('body').on('click', '.tooltip a', function(){
+
+			$('#health-translator-loading').show();
+
 			console.log("Abri um tooltip");
 			//get the id of the opened tooltip
-			var tooltip_id = $(this).closest('.tooltip').attr('id');
-			var term = $('.medical-term-translate[aria-describedby="' + tooltip_id + '"').attr('data-term');
-
-			var bodyData = {
-				body: term
+			var tooltip = $(this).closest('.tooltip')
+			var tooltip_id = tooltip.attr('id');
+			var term = $('.medical-term-translate[aria-describedby="' + tooltip_id + '"]').attr('data-term');
+			var cui = $('.medical-term-translate[aria-describedby="' + tooltip_id + '"]').attr('data-cui');
+			tooltip.tooltip("hide");
+			$('#health-translator-modal-label').text(term);
+			
+			var conceptData = {
+				cui: cui,
+				string: term,
+				language: "en"
 			};
 
-			chrome.runtime.sendMessage({action: "details", data: bodyData}, function(response){
-				console.log("here");
-				$('#health-translator-modal-label').text(term);
+			chrome.runtime.sendMessage({action: "details", data: conceptData}, function(response){
+
+				$('#health-translator-loading').hide();
+
+				console.log(JSON.stringify(response));
+				console.log(response.refs[0].label);
+				if(response.refs.length == 0){
+					console.log("No refs");
+					$('#health-translator-references').append("<h4>No external references found.</h4>");
+				}else{
+					$('#health-translator-references').append("<h4>External References</h4>");
+					response.refs.forEach(function(obj) {
+						console.log(obj);
+						var url = obj.url;
+						var label = obj.label;
+						var source = obj.source;
+						$('#health-translator-references').append("<div><a href=\""+ url + "\">" + source + " - " + label + "</a>");
+					});
+				}
 			});
+			
 		});
+
+		$('#health-translator-modal button[data-dismiss="modal"]').click(function(){
+			console.log("Clicking to close modal");
+			
+			//delete modal data
+			setTimeout(function () {
+				$('#health-translator-definition').empty();
+				$('#health-translator-references').empty();
+				$('#health-translator-relationships').empty();
+				$('#health-translator-loading').show();
+			}, 150);
+
+		});
+		
 	};
 
 	//console.log("BODY: " + $('body').html());
@@ -115,13 +155,22 @@ modal += "  <div class=\"modal-dialog\" role=\"document\">";
 modal += "    <div class=\"modal-content\">";
 modal += "      <div class=\"modal-header\">";
 modal += "        <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;<\/span><\/button>";
-modal += "        <h4 class=\"modal-title\" id=\"health-translator-modal-label\">Modal title<\/h4>";
+modal += "        <h4 class=\"modal-title\" id=\"health-translator-modal-label\"><\/h4>";
 modal += "      <\/div>";
 modal += "      <div class=\"modal-body\">";
-modal += "        ...";
+modal += "			<div id=\"health-translator-loading\" class=\"text-center\">";
+modal += "				<img src=\"" + chrome.extension.getURL("images/loading.gif") + "\">";
+modal += "      	<\/div>";
+modal += "			<div id=\"health-translator-definition\">";
+modal += "      	<\/div>";
+modal += "			<br>";
+modal += "			<div class=\"text-center\" id=\"health-translator-references\">";
+modal += "			<\/div>";
+modal += "			<br>";
+modal += "			<div class=\"text-center\" id=\"health-translator-relationships\">";
+modal += "			<\/div>";
 modal += "      <\/div>";
 modal += "      <div class=\"modal-footer text-center\">";
-modal += "        <!--<button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Close<\/button>-->";
 modal += "        <button type=\"button\" class=\"btn btn-primary\" data-dismiss=\"modal\">Close<\/button>";
 modal += "      <\/div>";
 modal += "    <\/div>";

@@ -1,9 +1,17 @@
 .health-translator span.medical-term-translate{
-	/*border-bottom: 3px solid red;*/
-	/*cursor pointer?*/
+	cursor: help;
 	background-color:#FFFF00;
 }
 
 div.tooltip-inner {
     max-width: 350px !important;
+}
+
+#health-translator-modal .modal-body{
+	overflow-y:auto;
+	max-height: 70%;
+}
+
+#health-translator-modal .modal-title:first-letter{
+	text-transform: uppercase;
 }
