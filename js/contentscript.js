@@ -42,15 +42,18 @@ $(document).ready(function(){
 			//get the id of the opened tooltip
 			var tooltip = $(this).closest('.tooltip')
 			var tooltip_id = tooltip.attr('id');
-			var term = $('.medical-term-translate[aria-describedby="' + tooltip_id + '"]').attr('data-term');
-			var cui = $('.medical-term-translate[aria-describedby="' + tooltip_id + '"]').attr('data-cui');
+			var conceptSpan = $('.medical-term-translate[aria-describedby="' + tooltip_id + '"]');
+			var term = conceptSpan.attr('data-term');
+			var cui = conceptSpan.attr('data-cui');
+			var lang = conceptSpan.attr('data-lang');
 			tooltip.tooltip("hide");
+
 			$('#health-translator-modal-label').text(term);
 			
 			var conceptData = {
 				cui: cui,
 				string: term,
-				language: "en"
+				language: lang
 			};
 
 			chrome.runtime.sendMessage({action: "details", data: conceptData}, function(response){
