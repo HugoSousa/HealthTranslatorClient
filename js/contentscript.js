@@ -79,17 +79,14 @@ $(document).ready(function(){
 			
 		});
 
-		$('#health-translator-modal button[data-dismiss="modal"]').click(function(){
-			console.log("Clicking to close modal");
+		$('#health-translator-modal').on('hidden.bs.modal', function () {
+			console.log("Hidden modal");
 			
 			//delete modal data
-			setTimeout(function () {
-				$('#health-translator-definition').empty();
-				$('#health-translator-references').empty();
-				$('#health-translator-relationships').empty();
-				$('#health-translator-loading').show();
-			}, 150);
-
+			$('#health-translator-definition').empty();
+			$('#health-translator-references').empty();
+			$('#health-translator-relationships').empty();
+			$('#health-translator-loading').show();
 		});
 		
 	};
