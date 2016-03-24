@@ -1,9 +1,12 @@
 /* CONCEPT SPAN */
 .health-translator .medical-term-translate{
-	cursor: help;
 	background-color:#FFFF00;
 	display: inline;
 	position:relative;
+}
+
+*:not(a) > .health-translator .medical-term-translate{
+	cursor: help;
 }
 
 /* TOOLTIP */
