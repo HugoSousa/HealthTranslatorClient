@@ -1,11 +1,23 @@
-.health-translator span.medical-term-translate{
+/* CONCEPT SPAN */
+.health-translator .medical-term-translate{
 	cursor: help;
 	background-color:#FFFF00;
+	display: inline;
+	position:relative;
 }
+
+/* TOOLTIP */
 
 div.tooltip-inner {
     max-width: 350px !important;
 }
+
+/* ensure that there are no CSS rules overriding the tooltip text*/
+.health-translator.tooltip p{
+  all: inherit !important;
+}
+
+/* MODAL */
 
 #health-translator-modal .modal-body{
 	overflow-y:auto;
@@ -15,3 +27,11 @@ div.tooltip-inner {
 #health-translator-modal .modal-title:first-letter{
 	text-transform: uppercase;
 }
+
+/*ensure to override existent rules*/
+/*
+span.health-translator div.tooltip-inner p{
+	color: #fff !important;
+	font-size: 1em !important;
+}
+*/

@@ -1,3 +1,5 @@
+var current_processing;
+
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     console.log("here");
 
@@ -17,6 +19,13 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             var result = getDetails(request.data, sendResponse);
             return true;
             break;
+        case 'processDocumentAgain':
+            console.log("ABORT PROCESSING");
+            if(current_processing && current_processing.readyState != 4)
+                current_processing.abort()
+            var result = processDocument(request.data, sendResponse);
+            return true;
+            break;
     }
 
     return true;
@@ -30,7 +39,7 @@ function processDocument(data, sendResponse){
     var time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds() + ":" + dt.getMilliseconds();
     console.log(time);
 
-    $.ajax({
+    current_processing = $.ajax({
         url: "http://localhost:8080/HealthTranslatorServer/webresources/process",
         type: "POST",
         data: JSON.stringify(data),
@@ -52,7 +61,7 @@ function processDocument(data, sendResponse){
             sendResponse(result);
         },
         error: function(error){
-            console.log("ERROR: " + error);
+            console.log("ERROR: " + JSON.stringify(error));
             sendResponse(error);
         }
     });

@@ -1,5 +1,70 @@
 $(document).ready(function(){ 
 
+	console.log("The page is ready");
+	MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+
+	var observer = new MutationObserver(function(mutations, observer) {
+	    // fired when a mutation occurs
+	    //cancel active ajax request and send again
+	    console.log("Change in the DOM - Processing the document again");
+
+	    var bodyData = {
+			body: LZString.compressToUTF16($('body').find('script').remove().end().html())
+		};
+
+	    chrome.runtime.sendMessage({action: "processDocumentAgain", data: bodyData}, function(response){
+	    	console.log("RECEIVED PROCESS DOCUMENT AGAIN!");
+	    	replaceDocument(response);
+	    });
+
+	});
+
+	observeMutations(observer);
+
+	function observeMutations(observer){
+		observer.observe(document, {
+			childList: true,
+			subtree: true
+		});
+	}
+
+	function replaceDocument(response){
+
+		var t1 = performance.now();
+		console.log("Response is returned after " + (t1 - t0) + "ms.");
+
+		if(typeof response.conceptCounter == "undefined"){
+			console.log("An error occurred");
+		}else if(response.conceptCounter > 0){
+
+			observer.disconnect();
+
+			var scripts = Array.prototype.slice.call(document.scripts);
+			//console.log(scripts);
+			//console.log("DATE1: " + new Date().getTime());
+			$('body').html(response.body);
+		  	$('body').append(modal); 
+		  	//console.log("DATE2: " + new Date().getTime());
+
+			for(var i = 0; i < scripts.length; i++){
+				//console.log(scripts[i]);
+				//console.log(scripts[i].parentNode);
+				if( scripts[i].parentNode == null || (scripts[i].parentNode != null && scripts[i].parentNode.localName != 'head')){
+					var script = document.createElement('script');
+					script.innerHTML = scripts[i].innerHTML;
+					script.src = scripts[i].src;
+					document.body.appendChild(script);
+				}
+			}
+
+		  	registerEvents();
+		  	var t2 = performance.now();
+		  	console.log("Whole processing is finished after " + (t2 - t0) + "ms.");
+	  	}
+
+	  	observeMutations(observer);
+	}
+
 	function registerEvents(){
 		
 		console.log("REGISTERING TOOLTIPS");
@@ -8,17 +73,23 @@ $(document).ready(function(){
 		$('.medical-term-translate[data-toggle="tooltip"]').tooltip({
 		    trigger: 'manual',
 		    animation: false,
-		    placement: "auto right"
+		    placement: "auto right",
+		    container: "body",
+		    template: '<div class="health-translator tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
 		}).on("mouseenter", function () {
 	        var _this = this;
 
 	        timer = setTimeout(function () {
+	        	observer.disconnect();
                 $(_this).tooltip("show");
+                observeMutations(observer);
         	}, 450);
 	        
 	        
 	        $(".tooltip").on("mouseleave", function () {
+	        	observer.disconnect();
 	            $(_this).tooltip('hide');
+	            observeMutations(observer);
 	        });
 
 	    }).on("mouseleave", function () {
@@ -28,7 +99,9 @@ $(document).ready(function(){
 
 	        setTimeout(function () {
 	            if (!$(".tooltip:hover").length) {
+	            	observer.disconnect();
 	                $(_this).tooltip("hide");
+	                observeMutations(observer);
 	            }
         	}, 300);
 	    });
@@ -36,10 +109,12 @@ $(document).ready(function(){
 
 		$('body').on('click', '.tooltip a', function(){
 
+			observer.disconnect();
+
 			$('#health-translator-loading').show();
 
 			console.log("Abri um tooltip");
-			//get the id of the opened tooltip
+
 			var tooltip = $(this).closest('.tooltip')
 			var tooltip_id = tooltip.attr('id');
 			var conceptSpan = $('.medical-term-translate[aria-describedby="' + tooltip_id + '"]');
@@ -60,8 +135,6 @@ $(document).ready(function(){
 
 				$('#health-translator-loading').hide();
 
-				console.log(JSON.stringify(response));
-				console.log(response.refs[0].label);
 				if(response.refs.length == 0){
 					console.log("No refs");
 					$('#health-translator-references').append("<h4>No external references found.</h4>");
@@ -75,11 +148,15 @@ $(document).ready(function(){
 						$('#health-translator-references').append("<div><a href=\""+ url + "\">" + source + " - " + label + "</a>");
 					});
 				}
+
+				observeMutations(observer);
 			});
 			
 		});
 
 		$('#health-translator-modal').on('hidden.bs.modal', function () {
+
+			observer.disconnect();
 			console.log("Hidden modal");
 			
 			//delete modal data
@@ -87,6 +164,8 @@ $(document).ready(function(){
 			$('#health-translator-references').empty();
 			$('#health-translator-relationships').empty();
 			$('#health-translator-loading').show();
+
+			observeMutations(observer);
 		});
 		
 	};
@@ -108,42 +187,7 @@ $(document).ready(function(){
 	//console.log("DECOMPRESSED BODY: " + LZString.decompress(bodyData.body))
 	var t0 = performance.now();
 	chrome.runtime.sendMessage({action: "processDocument", data: bodyData}, function(response){
-		var t1 = performance.now();
-		console.log("Response is returned after " + (t1 - t0) + "ms.");
-		
-		if(response.conceptCounter > 0){
-
-			var scripts = Array.prototype.slice.call(document.scripts);
-			//console.log(scripts);
-			console.log("DATE1: " + new Date().getTime());
-			$('body').html(response.body);
-		  	$('body').append(modal); 
-		  	console.log("DATE2: " + new Date().getTime());
-
-		  	//console.log(document.body);
-		  	
-			for(var i = 0; i < scripts.length; i++){
-				//console.log(scripts[i]);
-				//console.log(scripts[i].parentNode);
-				if( scripts[i].parentNode == null || (scripts[i].parentNode != null && scripts[i].parentNode.localName != 'head')){
-					var script = document.createElement('script');
-					script.innerHTML = scripts[i].innerHTML;
-					script.src = scripts[i].src;
-					document.body.appendChild(script);
-				}
-				
-			}
-			
-
-		  	registerEvents();
-		  	var t2 = performance.now();
-		  	console.log("Whole processing is finished after " + (t2 - t0) + "ms.");
-	  	}
-	  	
-	  	//$('html').html(response);
-	  	//document.write(getDocTypeAsString() + response);
-
-	  	
+	  	replaceDocument(response);	  	
 	});
 });
 
