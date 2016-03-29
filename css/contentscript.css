@@ -31,6 +31,16 @@ div.tooltip-inner {
 	text-transform: uppercase;
 }
 
+#health-translator-semantic-type{
+	margin-bottom: 0px; 
+	margin-top: 0px;
+}
+
+#health-translator-concept-name{
+	margin-bottom: 5px;
+}
+
+
 /*ensure to override existent rules*/
 /*
 span.health-translator div.tooltip-inner p{

@@ -12,9 +12,13 @@ $(document).ready(function(){
 			body: LZString.compressToUTF16($('body').find('script').remove().end().html())
 		};
 
+		var tx = performance.now();
+
 	    chrome.runtime.sendMessage({action: "processDocumentAgain", data: bodyData}, function(response){
 	    	console.log("RECEIVED PROCESS DOCUMENT AGAIN!");
 	    	replaceDocument(response);
+	    	tz = performance.now();
+	    	console.log("Processed document again in " + (tz - tx) + "ms.");
 	    });
 
 	});
@@ -30,12 +34,13 @@ $(document).ready(function(){
 
 	function replaceDocument(response){
 
-		var t1 = performance.now();
 		console.log("Response is returned after " + (t1 - t0) + "ms.");
 
 		if(typeof response.conceptCounter == "undefined"){
 			console.log("An error occurred");
 		}else if(response.conceptCounter > 0){
+
+			var t1 = performance.now();
 
 			observer.disconnect();
 
@@ -123,8 +128,8 @@ $(document).ready(function(){
 			var lang = conceptSpan.attr('data-lang');
 			tooltip.tooltip("hide");
 
-			$('#health-translator-modal-label').text(term);
-			
+			$('#health-translator-concept-name').text(term);
+
 			var conceptData = {
 				cui: cui,
 				string: term,
@@ -134,6 +139,15 @@ $(document).ready(function(){
 			chrome.runtime.sendMessage({action: "details", data: conceptData}, function(response){
 
 				$('#health-translator-loading').hide();
+
+				//set the semantic types
+				console.log(response.stys);
+				if(response.stys.length == 1){
+					console.log(response.stys[0]);
+					$('#health-translator-semantic-type').append(response.stys[0]);
+				}else{
+					console.log("There's more than 1 semantic type for this CUI.");
+				}
 
 				if(response.refs.length == 0){
 					console.log("No refs");
@@ -145,7 +159,7 @@ $(document).ready(function(){
 						var url = obj.url;
 						var label = obj.label;
 						var source = obj.source;
-						$('#health-translator-references').append("<div><a href=\""+ url + "\">" + source + " - " + label + "</a>");
+						$('#health-translator-references').append("<div><a href=\""+ url + "\" target=\"_blank\">" + source + " - " + label + "</a>");
 					});
 				}
 
@@ -160,6 +174,8 @@ $(document).ready(function(){
 			console.log("Hidden modal");
 			
 			//delete modal data
+			$('#health-translator-concept-name').empty();
+			$('#health-translator-semantic-type').empty();
 			$('#health-translator-definition').empty();
 			$('#health-translator-references').empty();
 			$('#health-translator-relationships').empty();
@@ -199,7 +215,10 @@ modal += "  <div class=\"modal-dialog\" role=\"document\">";
 modal += "    <div class=\"modal-content\">";
 modal += "      <div class=\"modal-header\">";
 modal += "        <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;<\/span><\/button>";
-modal += "        <h4 class=\"modal-title\" id=\"health-translator-modal-label\"><\/h4>";
+modal += "        <div class=\"modal-title\" id=\"health-translator-modal-label\">";
+modal += "			<h4 id=\"health-translator-concept-name\"></h4>";		
+modal += "			<h6 id=\"health-translator-semantic-type\"></h6>";	
+modal += "        <\/div>";
 modal += "      <\/div>";
 modal += "      <div class=\"modal-body\">";
 modal += "			<div id=\"health-translator-loading\" class=\"text-center\">";
