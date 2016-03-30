@@ -148,24 +148,27 @@ $(document).ready(function(){
 					var tree = [];
 					for (var key in rels) {
 
-						var node = { text: key, nodes: [] };
+						var node = { text: key, nodes: [], tags: []};
 						tree.push(node);
 
 					    // skip loop if the property is from prototype
 					    if (!rels.hasOwnProperty(key)) continue;
-				        
+
 					    var relsList = rels[key];
+					    node.tags.push(relsList.length);
+
 					    for (var i = 0; i < relsList.length; i++) {
 
 					    	var relationship = relsList[i];
 					        var childNode = { text: relationship.concept2};
 				        	node.nodes.push(childNode);
 					        
-					    }
-					
+					    }				
 					}
+					console.log(tree);
 
 					$('#health-translator-relationships').treeview({data: tree, levels: 0, showBorder: false, showTags: true});
+					$('#health-translator-relationships .list-group-item span.badge').addClass('pull-right');
 
 					$('#health-translator-relationships').on('mousedown', function(event) {
 						//console.log("CLICK RELATIONSHIPS");
