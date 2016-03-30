@@ -1,5 +1,8 @@
 $(document).ready(function(){ 
 
+	var scripts = Array.prototype.slice.call(document.scripts);
+	console.log("SCRIPTS: " + scripts.length);
+
 	console.log("The page is ready");
 	MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
 
@@ -9,7 +12,7 @@ $(document).ready(function(){
 	    console.log("Change in the DOM - Processing the document again");
 
 	    var bodyData = {
-			body: LZString.compressToUTF16($('body').find('script').remove().end().html())
+			body: LZString.compressToUTF16($('body').clone().find('script').remove().end().html())
 		};
 
 		var tx = performance.now();
@@ -57,7 +60,9 @@ $(document).ready(function(){
 				if( scripts[i].parentNode == null || (scripts[i].parentNode != null && scripts[i].parentNode.localName != 'head')){
 					var script = document.createElement('script');
 					script.innerHTML = scripts[i].innerHTML;
-					script.src = scripts[i].src;
+					if(scripts[i].src){
+						script.src = scripts[i].src;
+					}
 					document.body.appendChild(script);
 				}
 			}
@@ -229,7 +234,7 @@ $(document).ready(function(){
 	var bodyData = {
 		//remove scripts in order to remove unnecessary chunks of text in request
 		//scripts are manually added in the response
-		body: LZString.compressToUTF16($('body').find('script').remove().end().html())
+		body: LZString.compressToUTF16($('body').clone().find('script').remove().end().html())
 	};
 
 
