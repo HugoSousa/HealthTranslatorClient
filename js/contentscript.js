@@ -67,11 +67,12 @@ $(document).ready(function(){
 		  	console.log("Whole processing is finished after " + (t2 - t0) + "ms.");
 	  	}
 
-	  	observeMutations(observer);
+	  	//observeMutations(observer);
 	}
 
 	function registerEvents(){
-		
+
+	
 		console.log("REGISTERING TOOLTIPS");
 		var timer;
 
@@ -140,22 +141,59 @@ $(document).ready(function(){
 
 				$('#health-translator-loading').hide();
 
-				//set the semantic types
-				console.log(response.stys);
-				if(response.stys.length == 1){
-					console.log(response.stys[0]);
-					$('#health-translator-semantic-type').append(response.stys[0]);
+				console.log(response.relationships);
+				var rels = response.relationships;
+
+				if(! $.isEmptyObject(rels)){
+					var tree = [];
+					for (var key in rels) {
+
+						var node = { text: key, nodes: [] };
+						tree.push(node);
+
+					    // skip loop if the property is from prototype
+					    if (!rels.hasOwnProperty(key)) continue;
+				        
+					    var relsList = rels[key];
+					    for (var i = 0; i < relsList.length; i++) {
+
+					    	var relationship = relsList[i];
+					        var childNode = { text: relationship.concept2};
+				        	node.nodes.push(childNode);
+					        
+					    }
+					
+					}
+
+					$('#health-translator-relationships').treeview({data: tree, levels: 0, showBorder: false, showTags: true});
+
+					$('#health-translator-relationships').on('mousedown', function(event) {
+						//console.log("CLICK RELATIONSHIPS");
+						observer.disconnect();
+					});
+
+					$('#health-translator-relationships').on('nodeCollapsed nodeExpanded', function(event) {
+						//console.log("NODE COLLAPSED OR EXPANDED");
+						//timeout for DOM changes
+						setTimeout(function(){ observeMutations(observer); }, 5);
+					});
+				}
+
+
+				if(response.semanticTypes.length == 1){
+					console.log(response.semanticTypes[0]);
+					$('#health-translator-semantic-type').text(response.semanticTypes[0]);
 				}else{
 					console.log("There's more than 1 semantic type for this CUI.");
 				}
 
-				if(response.refs.length == 0){
+				if(response.references.length == 0){
 					console.log("No refs");
 					$('#health-translator-references').append("<h4>No external references found.</h4>");
 				}else{
 					$('#health-translator-references').append("<h4>External References</h4>");
-					response.refs.forEach(function(obj) {
-						console.log(obj);
+					response.references.forEach(function(obj) {
+						//console.log(obj);
 						var url = obj.url;
 						var label = obj.label;
 						var source = obj.source;
@@ -183,16 +221,12 @@ $(document).ready(function(){
 
 			observeMutations(observer);
 		});
-		
 	};
 
-	//console.log("BODY: " + $('body').html());
-	//console.log($('body').html());
 	var bodyData = {
 		//remove scripts in order to remove unnecessary chunks of text in request
 		//scripts are manually added in the response
 		body: LZString.compressToUTF16($('body').find('script').remove().end().html())
-		//body: document.documentElement.outerHTML
 	};
 
 
@@ -230,7 +264,7 @@ modal += "			<br>";
 modal += "			<div class=\"text-center\" id=\"health-translator-references\">";
 modal += "			<\/div>";
 modal += "			<br>";
-modal += "			<div class=\"text-center\" id=\"health-translator-relationships\">";
+modal += "			<div id=\"health-translator-relationships\">";
 modal += "			<\/div>";
 modal += "      <\/div>";
 modal += "      <div class=\"modal-footer text-center\">";

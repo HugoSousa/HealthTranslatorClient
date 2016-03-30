@@ -8,7 +8,8 @@
     "default_icon": "images/icon.png"
   },
   "web_accessible_resources": [
-    "images/loading.gif"
+    "images/loading.gif",
+    "fonts/*"
   ],
   "permissions": [
     "activeTab",
@@ -20,8 +21,8 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "css": [ "css/contentscript.css", "css/scoped-health-translator.css" ],
-      "js": ["js/libs/jquery.min.js", "js/libs/bootstrap.js", "js/libs/lz-string.min.js", "js/contentscript.js"]
+      "css": [ "css/contentscript.css", "css/scoped-health-translator.css", "css/bootstrap-treeview.min.css" ],
+      "js": ["js/libs/jquery.min.js", "js/libs/bootstrap.js", "js/libs/lz-string.min.js", "js/libs/bootstrap-treeview.min.js", "js/contentscript.js"]
     }
   ],
   "background": {
