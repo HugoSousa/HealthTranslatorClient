@@ -1,8 +1,5 @@
 $(document).ready(function(){ 
 
-	var scripts = Array.prototype.slice.call(document.scripts);
-	console.log("SCRIPTS: " + scripts.length);
-
 	console.log("The page is ready");
 	MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
 
@@ -153,7 +150,7 @@ $(document).ready(function(){
 					var tree = [];
 					for (var key in rels) {
 
-						var node = { text: key, nodes: [], tags: []};
+						var node = { text: key, nodes: [], tags: [], selectable: false };
 						tree.push(node);
 
 					    // skip loop if the property is from prototype
@@ -165,15 +162,21 @@ $(document).ready(function(){
 					    for (var i = 0; i < relsList.length; i++) {
 
 					    	var relationship = relsList[i];
-					        var childNode = { text: relationship.concept2};
+					        var childNode = { text: relationship.concept2, selectable: false };
 				        	node.nodes.push(childNode);
 					        
 					    }				
 					}
 					console.log(tree);
 
-					$('#health-translator-relationships').treeview({data: tree, levels: 0, showBorder: false, showTags: true});
-					$('#health-translator-relationships .list-group-item span.badge').addClass('pull-right');
+					$('#health-translator-relationships').treeview({
+						data: tree, 
+						levels: 0, 
+						showBorder: false, 
+						showTags: true, 
+						collapseIcon: "glyphicon glyphicon-chevron-down",
+						expandIcon: "glyphicon glyphicon-chevron-right"
+					});
 
 					$('#health-translator-relationships').on('mousedown', function(event) {
 						//console.log("CLICK RELATIONSHIPS");
@@ -187,13 +190,15 @@ $(document).ready(function(){
 					});
 				}
 
-
-				if(response.semanticTypes.length == 1){
-					console.log(response.semanticTypes[0]);
-					$('#health-translator-semantic-type').text(response.semanticTypes[0]);
-				}else{
-					console.log("There's more than 1 semantic type for this CUI.");
+				var semantic_types_string = "";
+				for(var i = 0; i < response.semanticTypes.length; i++){
+					semantic_types_string += response.semanticTypes[i];
+					if(i < response.semanticTypes.length - 1)
+						semantic_types_string += " | ";
 				}
+
+				$('#health-translator-semantic-type').text(semantic_types_string);
+				
 
 				if(response.references.length == 0){
 					console.log("No refs");
