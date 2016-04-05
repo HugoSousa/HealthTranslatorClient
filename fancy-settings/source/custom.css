@@ -1,0 +1,39 @@
+/*
+// Add your own style rules here, not in css/main.css
+// or css/setting.css for easy updating reasons.
+*/
+.setting.label.checkbox{
+	padding: 0px;
+}
+
+#sty-wrapper-checkboxes {
+	-webkit-columns: 120px 2;
+}
+
+#sty-wrapper-buttons {
+	-webkit-columns: 65px 3;
+	text-align: center;
+}
+
+div.setting.bundle.description{
+	margin-bottom: 0px;
+}
+
+div.setting.bundle.checkbox{
+	margin-bottom: 0px;
+}
+
+p.bigger-description{
+	font-size: 13px;
+	margin: 0 15px 0 0;
+    font-weight: normal;
+    line-height: inherit;
+}
+
+p.red-description{
+	color: red;
+}
+
+p.green-description{
+	color: green;
+}

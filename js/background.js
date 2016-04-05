@@ -1,5 +1,17 @@
 var current_processing;
 
+var settings = new Store("settings", {
+    "mode": "click",
+    "chv_only": "yes",
+    "sty_filter": "sty_one",
+    "lang_en": true,
+    "lang_pt": true,
+    "lang_content": "detected",
+    "ext_refs": false,
+    "sty_1": true,
+    "sty_2": true
+});
+
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     console.log("here");
 

@@ -12,7 +12,7 @@
 /* TOOLTIP */
 
 div.tooltip-inner {
-    max-width: 350px !important;
+    max-width: 380px !important;
 }
 
 /* ensure that there are no CSS rules overriding the tooltip text*/

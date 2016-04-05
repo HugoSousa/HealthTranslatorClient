@@ -1,6 +1,5 @@
 {
   "manifest_version": 2,
-
   "name": "HealthTranslator",
   "description": "Recognize medical terms in Web documents and provide definitions, relationships and external references for a better search!",
   "version": "0.1",
@@ -13,11 +12,11 @@
   ],
   "permissions": [
     "activeTab",
-    "storage",
     "https://ajax.googleapis.com/",
     "http://*/",
     "https://*/"
   ],
+  /*
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
@@ -25,9 +24,21 @@
       "js": ["js/libs/jquery.min.js", "js/libs/bootstrap.js", "js/libs/lz-string.min.js", "js/libs/bootstrap-treeview.min.js", "js/contentscript.js"]
     }
   ],
+  */
   "background": {
-    "scripts": ["js/libs/jquery.min.js", "js/background.js"],
+    "scripts": ["fancy-settings/source/lib/store.js", "js/libs/jquery.min.js", "js/background.js"],
     "persistent": false
   },
-  "options_page": "html/options.html"
+
+  "options_page": "fancy-settings/source/index.html",
+  "options_ui": {
+    "page": "fancy-settings/source/index.html",
+    "chrome_style": true
+  }
+  /*
+  "options_ui": {
+    "page": "html/options.html",
+    "chrome_style": true
+  }
+  */
 }
