@@ -2,6 +2,10 @@
 // Add your own style rules here, not in css/main.css
 // or css/setting.css for easy updating reasons.
 */
+p.element.description {
+	text-align: justify;
+}
+
 .setting.label.checkbox{
 	padding: 0px;
 }

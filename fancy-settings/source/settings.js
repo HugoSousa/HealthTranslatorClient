@@ -24,6 +24,7 @@ window.addEvent("domready", function () {
         });
 
         settings.manifest.reset_settings.addEvent("action", function(){
+            settings.manifest.mode.set("click");
             settings.manifest.chv_only.set("yes");
             settings.manifest.sty_filter.set("sty_one");
             settings.manifest.lang_en.set(true);
@@ -45,6 +46,10 @@ window.addEvent("domready", function () {
         settings.manifest.sty_reset.addEvent("action", function(){
             setDefaultSemanticTypes(settings);
         });
+
+        settings.manifest.mode.addEvent("action", function(){
+            chrome.extension.getBackgroundPage().changeExecutionMode();
+        })
     });
 });
 

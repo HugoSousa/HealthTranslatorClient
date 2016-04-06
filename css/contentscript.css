@@ -39,12 +39,3 @@ div.tooltip-inner {
 #health-translator-concept-name{
 	margin-bottom: 5px;
 }
-
-
-/*ensure to override existent rules*/
-/*
-span.health-translator div.tooltip-inner p{
-	color: #fff !important;
-	font-size: 1em !important;
-}
-*/

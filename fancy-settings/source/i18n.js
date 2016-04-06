@@ -93,8 +93,8 @@ this.i18n = {
         "pt": "Repôr definições por defeito."
     },
     "mode_description": {
-        "en": "When to execute",
-        "pt": "Quando executar"
+        "en": "When to execute?",
+        "pt": "Quando executar?"
     },
     "mode_always": {
         "en": "On every document",

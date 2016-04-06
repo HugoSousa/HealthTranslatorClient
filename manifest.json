@@ -11,10 +11,8 @@
     "fonts/*"
   ],
   "permissions": [
-    "activeTab",
-    "https://ajax.googleapis.com/",
-    "http://*/",
-    "https://*/"
+    "tabs",
+    "<all_urls>"
   ],
   /*
   "content_scripts": [
@@ -35,10 +33,4 @@
     "page": "fancy-settings/source/index.html",
     "chrome_style": true
   }
-  /*
-  "options_ui": {
-    "page": "html/options.html",
-    "chrome_style": true
-  }
-  */
 }

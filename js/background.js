@@ -11,6 +11,7 @@ var settings = new Store("settings", {
     "sty_1": true,
     "sty_2": true
 });
+changeExecutionMode();
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     console.log("here");
@@ -23,7 +24,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     switch (request.action) {
         case 'processDocument':
             console.log("PROCESS ON BACKGROUND");
-            var result = processDocument(request.data, sendResponse);
+            console.log(sender.tab.id);
+            var result = processDocument(request.data, sender.tab.id, sendResponse);
             return true;
             break;
         case 'details':
@@ -35,7 +37,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             console.log("ABORT PROCESSING");
             if(current_processing && current_processing.readyState != 4)
                 current_processing.abort()
-            var result = processDocument(request.data, sendResponse);
+            var result = processDocument(request.data, sender.tab.id, sendResponse);
             return true;
             break;
     }
@@ -44,7 +46,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 });
 
 
-function processDocument(data, sendResponse){
+function processDocument(data, tabId, sendResponse){
 
     //console.log("DATA: " + JSON.stringify(data));
     var dt = new Date();
@@ -62,13 +64,11 @@ function processDocument(data, sendResponse){
 
             console.log("return result");
             console.log("result conceptCounter: " + result.conceptCounter);
-            doInCurrentTab( function(tab){ 
-                console.log("TAB: " + tab);
-                chrome.browserAction.setBadgeText({
-                    text: result.conceptCounter.toString(), 
-                    tabId: tab.id
-                });
-            } );
+
+            chrome.browserAction.setBadgeText({
+                text: result.conceptCounter.toString(), 
+                tabId: tabId
+            });
             
             sendResponse(result);
         },
@@ -101,9 +101,97 @@ function getDetails(data, sendResponse){
     });
 }
 
-function doInCurrentTab(tabCallback) {
-    chrome.tabs.query(
-        { active: true, lastFocusedWindow:true },
-        function (tabArray) { tabCallback(tabArray[0]); }
-    );
+function browserActionCallback(tab){
+
+    chrome.browserAction.getBadgeText({tabId: tab.id}, function(result){
+        if(result === ""){
+            chrome.browserAction.setBadgeText({
+                text: "...", 
+                tabId: tab.id
+            });
+            injectScriptsAndCSS(tab.id);
+        }else{
+            alert("This page was already processed.");
+        }
+
+    });
+}
+
+function tabUpdatedCallback(tabId, changeInfo, tab){
+    console.log("STATUS:" + JSON.stringify(changeInfo));
+    console.log("TAB:" + JSON.stringify(tab));
+    if (changeInfo.status == 'complete' && tab.status == 'complete' && tab.url != undefined && tab.url.substring(0, 9) !== 'chrome://') {
+        console.log("EXECUTE CONTENT SCRIPT");
+        chrome.browserAction.setBadgeText({
+            text: "...", 
+            tabId: tab.id
+        });
+        injectScriptsAndCSS(tabId);
+    }
+}
+
+function injectScriptsAndCSS(tabId){
+    console.log("EXECUTED SCRIPTS");
+
+    insertCSS(tabId, [
+        { file: "css/contentscript.css" }, 
+        { file: "css/scoped-health-translator.css" },
+        { file: "css/bootstrap-treeview.min.css" },
+    ]);
+
+    executeScripts(tabId, [
+        { file: "js/libs/jquery.min.js" },
+        { file: "js/libs/bootstrap.js" },
+        { file: "js/libs/lz-string.min.js" },
+        { file: "js/libs/bootstrap-treeview.min.js" },
+        { file: "js/contentscript.js"}
+    ]);
+
+    
+}
+
+function executeScripts(tabId, injectDetailsArray)
+{
+    function createCallback(tabId, injectDetails, innerCallback) {
+        return function () {
+            chrome.tabs.executeScript(tabId, injectDetails, innerCallback);
+        };
+    }
+
+    var callback = null;
+
+    for (var i = injectDetailsArray.length - 1; i >= 0; --i)
+        callback = createCallback(tabId, injectDetailsArray[i], callback);
+
+    if (callback !== null)
+        callback();   // execute outermost function
+}
+
+function insertCSS(tabId, injectDetailsArray)
+{
+    function createCallback(tabId, injectDetails, innerCallback) {
+        return function () {
+            chrome.tabs.insertCSS(tabId, injectDetails, innerCallback);
+        };
+    }
+
+    var callback = null;
+
+    for (var i = injectDetailsArray.length - 1; i >= 0; --i)
+        callback = createCallback(tabId, injectDetailsArray[i], callback);
+
+    if (callback !== null)
+        callback();   // execute outermost function
+}
+
+function changeExecutionMode(){
+    console.log("MODE CHANGED: " + settings.get("mode"));
+    var mode = settings.get("mode");
+    if(mode == 'click'){
+        chrome.tabs.onUpdated.removeListener(tabUpdatedCallback);
+        chrome.browserAction.onClicked.addListener(browserActionCallback);
+    }else if(mode == 'always'){
+        chrome.browserAction.onClicked.removeListener(browserActionCallback);
+        chrome.tabs.onUpdated.addListener(tabUpdatedCallback);
+    }
 }
