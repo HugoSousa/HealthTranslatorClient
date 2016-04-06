@@ -73,8 +73,8 @@ this.i18n = {
 
     //ABOUT TAB
     "description": {
-        "en": "This extension helps you on your medical searches on the Web.\n It recognizes medical concepts on Web documents and provides you more information, such as a definition, a more familiar term, external references or related concepts. It is user-friendly, customizable and won't bother your search!",
-        "pt": "Esta extensão ajuda-te nas tuas pesquisas médicas na Web.\n Reconhece conceitos médicos em documentos Web e fornece mais informação, tal como definição, um termo mais familiar, referências externas ou conceitos relacionados. É prática, customizável e não incomoda a tua pesquisa!"
+        "en": "This extension helps you on your medical searches on the Web.\n It recognizes medical concepts on Web documents and provides you more information, such as a definition, a more familiar term, external references or related concepts. It is user-friendly, customizable and won't bother your search! It currently supports English and Portuguese.",
+        "pt": "Esta extensão ajuda-te nas tuas pesquisas médicas na Web.\n Reconhece conceitos médicos em documentos Web e fornece mais informação, tal como definição, um termo mais familiar, referências externas ou conceitos relacionados. É prática, customizável e não incomoda a tua pesquisa! Atualmente suporta a língua inglesa e portuguesa."
     },
     "check_status": {
         "en": "Request the server in order to check its status.",
@@ -174,8 +174,8 @@ this.i18n = {
         "pt": "Seleciona a linguagem que pretendes que o conteúdo seja mostrado. (A definição do conceito, se presente, é sempre mostrada na linguagem detetada)"
     },
     "external_references_description": {
-        "en": "Choose the language(s) that you want the external references to be presented.",
-        "pt": "Seleciona a(s) linguagem(ns) em que pretendes que as referências externas sejam apresentam."
+        "en": "There is more information available in English external references. Select if you want to always include English external references, even if the page is in a different language.",
+        "pt": "Existe mais informação disponível em referênces externas em Inglês. Seleciona se pretendes incluir sempre referências externas em Inglês, mesmo que a página esteja noutra linguagem."
     },
     "ext_refs_label": {
         "en": "Always include English external references",

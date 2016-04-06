@@ -3,14 +3,39 @@ var current_processing;
 var settings = new Store("settings", {
     "mode": "click",
     "chv_only": "yes",
-    "sty_filter": "sty_one",
+    "sty_filter": "one",
     "lang_en": true,
     "lang_pt": true,
     "lang_content": "detected",
     "ext_refs": false,
-    "sty_1": true,
-    "sty_2": true
+    "sty_5": true,
+    "sty_7": true,
+    "sty_23": true,
+    "sty_29": true,
+    "sty_30": true,
+    "sty_34": true,
+    "sty_37": true,
+    "sty_40": true,
+    "sty_46": true,
+    "sty_47": true,
+    "sty_48": true,
+    "sty_59": true,
+    "sty_60": true,
+    "sty_61": true,
+    "sty_116": true,
+    "sty_121": true,
+    "sty_125": true,
+    "sty_126": true,
+    "sty_127": true,
+    "sty_129": true,
+    "sty_130": true,
+    "sty_131": true,
+    "sty_184": true,
+    "sty_192": true,
+    "sty_195": true,
+    "sty_200": true,
 });
+
 changeExecutionMode();
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
@@ -49,6 +74,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 function processDocument(data, tabId, sendResponse){
 
     //console.log("DATA: " + JSON.stringify(data));
+    addSettingsData(data);
+
     var dt = new Date();
     var time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds() + ":" + dt.getMilliseconds();
     console.log(time);
@@ -65,10 +92,17 @@ function processDocument(data, tabId, sendResponse){
             console.log("return result");
             console.log("result conceptCounter: " + result.conceptCounter);
 
-            chrome.browserAction.setBadgeText({
-                text: result.conceptCounter.toString(), 
-                tabId: tabId
-            });
+            if(result.processed){
+                chrome.browserAction.setBadgeText({
+                    text: result.conceptCounter.toString(), 
+                    tabId: tabId
+                });
+            }else{
+                chrome.browserAction.setBadgeText({
+                    title: "X", 
+                    tabId: tabId
+                });
+            }
             
             sendResponse(result);
         },
@@ -82,6 +116,7 @@ function processDocument(data, tabId, sendResponse){
 function getDetails(data, sendResponse){
 
     console.log(data);
+    data.includeEnglishRefs = settings.get("ext_refs");
 
     $.ajax({
         url: "http://localhost:8080/HealthTranslatorServer/webresources/details",
@@ -99,6 +134,34 @@ function getDetails(data, sendResponse){
             sendResponse(error);
         }
     });
+}
+
+function addSettingsData(data){
+    data.styFilter = settings.get("sty_filter");
+    data.recognizeOnlyCHV = (settings.get("chv_only") == "yes") ? true : false;
+    var supportedLanguages = []
+    if(settings.get("lang_en") == true) supportedLanguages.push("en");
+    if(settings.get("lang_pt") == true) supportedLanguages.push("pt");
+    data.supportedLanguages = supportedLanguages;
+    data.contentLanguage = settings.get("lang_content");
+    var semanticTypes = [];
+    for(var i = 0; i <= 204; i++){
+        var sty = "sty_" + i;
+        var accepted = settings.get(sty);
+        if(accepted == true)
+        {
+            sty_format = "T"
+
+            if(i < 10)
+                sty_format += "00"
+            else if(i < 100)
+                sty_format += "0"
+            sty_format += i;
+
+            semanticTypes.push(sty_format);
+        }
+    }
+    data.semanticTypes = semanticTypes;
 }
 
 function browserActionCallback(tab){
@@ -188,9 +251,15 @@ function changeExecutionMode(){
     console.log("MODE CHANGED: " + settings.get("mode"));
     var mode = settings.get("mode");
     if(mode == 'click'){
+        chrome.browserAction.setTitle({
+            title: "Click here to translate this page.\nYou can change the execution mode in the extension's settings."
+        });
         chrome.tabs.onUpdated.removeListener(tabUpdatedCallback);
         chrome.browserAction.onClicked.addListener(browserActionCallback);
     }else if(mode == 'always'){
+        chrome.browserAction.setTitle({
+            title: "Pages are being automatically translated.\nYou can change the execution mode in the extension's settings."
+        });
         chrome.browserAction.onClicked.removeListener(browserActionCallback);
         chrome.tabs.onUpdated.addListener(tabUpdatedCallback);
     }

@@ -36,6 +36,10 @@ $(document).ready(function(){
 
 		console.log("Response is returned after " + (t1 - t0) + "ms.");
 
+		if(response.processed == false){
+			console.log(response.exception);
+		}
+
 		if(typeof response.conceptCounter == "undefined"){
 			console.log("An error occurred");
 		}else if(response.conceptCounter > 0){

@@ -188,8 +188,8 @@ this.manifest = {
             "label": i18n.get("sty_filter_description"),
             "name": "sty_filter",
             "options": [
-                ["sty_all", i18n.get("sty_all")],
-                ["sty_one", i18n.get("sty_one")]
+                ["all", i18n.get("sty_all")],
+                ["one", i18n.get("sty_one")]
             ]
         },
         {
