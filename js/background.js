@@ -38,8 +38,56 @@ var settings = new Store("settings", {
 
 changeExecutionMode();
 
+chrome.contextMenus.create({
+    id: "cm",
+    contexts: ["selection"],
+    title: "Suggest \"%s\" as a medical concept"
+});
+
+chrome.contextMenus.create({
+    id: "cm_en",
+    contexts: ["selection"],
+    parentId: "cm",
+    title: "English"
+});
+
+chrome.contextMenus.create({
+    id: "cm_pt",
+    contexts: ["selection"],
+    parentId: "cm",
+    title: "Portuguese"
+});
+
+
+chrome.contextMenus.onClicked.addListener(function(info, tab){
+
+    data = {};
+    data.suggestion = info.selectionText;
+    data.tuid = getTUID();
+
+    if(info.menuItemId == "cm_en"){
+        
+        data.language = "en";
+        /*
+        chrome.tabs.sendMessage(tab.id, {message: "Successfull submitted english suggestion"}, function(response) {
+            console.log("done");
+        });
+        //tell content script to show toastr
+        */
+        //console.log("Suggest english concept: " + info.selectionText);
+        //enviar pedido de sugestão
+
+    }else if(info.menuItemId == "cm_pt"){
+        data.language = "pt";
+
+        //console.log("Clicked portuguese concept: " + info.selectionText);
+    }
+
+    sendSuggestion(data, tab);
+
+});
+
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    console.log("here");
 
     if (!request.action) {
         console.log('invalid command: ', request);
@@ -136,6 +184,24 @@ function getDetails(data, sendResponse){
     });
 }
 
+function sendSuggestion(data, tab){
+    $.ajax({
+        url: "http://localhost:8080/HealthTranslatorServer/webresources/suggest",
+        type: "POST",
+        data: JSON.stringify(data),
+        dataType: 'json',
+        contentType: "application/json;charset=UTF-8",
+        cache: false,
+        success: function(result){
+            chrome.tabs.sendMessage(tab.id, result);
+        },
+        error: function(error){
+            chrome.tabs.sendMessage(tab.id, {success: false, reason: "There was an unexpected error on the request."});
+            console.log("ERROR: " + JSON.stringify(error));
+        }
+    });
+}
+
 function addSettingsData(data){
     data.styFilter = settings.get("sty_filter");
     data.recognizeOnlyCHV = (settings.get("chv_only") == "yes") ? true : false;
@@ -203,7 +269,7 @@ function injectScriptsAndCSS(tabId){
     ]);
 
     executeScripts(tabId, [
-        { file: "js/libs/jquery.min.js" },
+        //{ file: "js/libs/jquery.min.js" }, //JQUERY IS ALREADY INJECTED ON EVERY PAGE
         { file: "js/libs/bootstrap.js" },
         { file: "js/libs/lz-string.min.js" },
         { file: "js/libs/bootstrap-treeview.min.js" },
@@ -263,4 +329,17 @@ function changeExecutionMode(){
         chrome.browserAction.onClicked.removeListener(browserActionCallback);
         chrome.tabs.onUpdated.addListener(tabUpdatedCallback);
     }
+}
+
+function getTUID(){
+
+    var id = settings.get("tuid");
+    if(typeof id === "undefined"){
+        tuid(function(tuid){
+          settings.set("tuid", tuid);
+          return tuid;
+        });
+    }
+
+    return id; 
 }

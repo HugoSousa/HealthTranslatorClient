@@ -12,6 +12,7 @@
   ],
   "permissions": [
     "tabs",
+    "contextMenus",
     "<all_urls>"
   ],
   /*
@@ -23,8 +24,15 @@
     }
   ],
   */
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "css": [ "css/toastr.css"],
+      "js": ["js/libs/jquery.min.js", "js/libs/toastr.js", "js/toast.js"]
+    }
+  ],
   "background": {
-    "scripts": ["fancy-settings/source/lib/store.js", "js/libs/jquery.min.js", "js/background.js"],
+    "scripts": ["fancy-settings/source/lib/store.js", "js/libs/jquery.min.js", "js/libs/tuid.js", "js/background.js"],
     "persistent": false
   },
 
