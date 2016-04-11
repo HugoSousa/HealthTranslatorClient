@@ -63,28 +63,14 @@ chrome.contextMenus.onClicked.addListener(function(info, tab){
 
     data = {};
     data.suggestion = info.selectionText;
-    data.tuid = getTUID();
 
     if(info.menuItemId == "cm_en"){
-        
         data.language = "en";
-        /*
-        chrome.tabs.sendMessage(tab.id, {message: "Successfull submitted english suggestion"}, function(response) {
-            console.log("done");
-        });
-        //tell content script to show toastr
-        */
-        //console.log("Suggest english concept: " + info.selectionText);
-        //enviar pedido de sugestão
-
     }else if(info.menuItemId == "cm_pt"){
         data.language = "pt";
-
-        //console.log("Clicked portuguese concept: " + info.selectionText);
     }
 
     sendSuggestion(data, tab);
-
 });
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
@@ -98,21 +84,27 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         case 'processDocument':
             console.log("PROCESS ON BACKGROUND");
             console.log(sender.tab.id);
-            var result = processDocument(request.data, sender.tab.id, sendResponse);
+            processDocument(request.data, sender.tab.id, sendResponse);
             return true;
             break;
         case 'details':
             console.log("DETAILS ON BACKGROUND");
-            var result = getDetails(request.data, sendResponse);
+            getDetails(request.data, sendResponse);
             return true;
             break;
         case 'processDocumentAgain':
             console.log("ABORT PROCESSING");
             if(current_processing && current_processing.readyState != 4)
                 current_processing.abort()
-            var result = processDocument(request.data, sender.tab.id, sendResponse);
+            processDocument(request.data, sender.tab.id, sendResponse);
             return true;
             break;
+        case 'submitRating':
+            console.log("SUBMIT RATING");
+            submitRating(request.data, sendResponse);
+            return true;
+            break;
+
     }
 
     return true;
@@ -147,7 +139,7 @@ function processDocument(data, tabId, sendResponse){
                 });
             }else{
                 chrome.browserAction.setBadgeText({
-                    title: "X", 
+                    text: "X", 
                     tabId: tabId
                 });
             }
@@ -165,6 +157,7 @@ function getDetails(data, sendResponse){
 
     console.log(data);
     data.includeEnglishRefs = settings.get("ext_refs");
+    data.tuid = getTUID();
 
     $.ajax({
         url: "http://localhost:8080/HealthTranslatorServer/webresources/details",
@@ -185,6 +178,9 @@ function getDetails(data, sendResponse){
 }
 
 function sendSuggestion(data, tab){
+
+    data.tuid = getTUID();
+
     $.ajax({
         url: "http://localhost:8080/HealthTranslatorServer/webresources/suggest",
         type: "POST",
@@ -198,6 +194,27 @@ function sendSuggestion(data, tab){
         error: function(error){
             chrome.tabs.sendMessage(tab.id, {success: false, reason: "There was an unexpected error on the request."});
             console.log("ERROR: " + JSON.stringify(error));
+        }
+    });
+}
+
+function submitRating(data, sendResponse){
+
+    data.tuid = getTUID();
+
+    $.ajax({
+        url: "http://localhost:8080/HealthTranslatorServer/webresources/rating",
+        type: "POST",
+        data: JSON.stringify(data),
+        dataType: 'json',
+        contentType: "application/json;charset=UTF-8",
+        cache: false,
+        success: function(result){
+            sendResponse(result);
+        },
+        error: function(error){
+            console.log("ERROR: " + JSON.stringify(error));
+            sendResponse(error);
         }
     });
 }
@@ -266,6 +283,7 @@ function injectScriptsAndCSS(tabId){
         { file: "css/contentscript.css" }, 
         { file: "css/scoped-health-translator.css" },
         { file: "css/bootstrap-treeview.min.css" },
+        { file: "css/bootstrap-stars.css" }
     ]);
 
     executeScripts(tabId, [
@@ -273,6 +291,7 @@ function injectScriptsAndCSS(tabId){
         { file: "js/libs/bootstrap.js" },
         { file: "js/libs/lz-string.min.js" },
         { file: "js/libs/bootstrap-treeview.min.js" },
+        { file: "js/libs/jquery.barrating.min.js" },
         { file: "js/contentscript.js"}
     ]);
 
@@ -314,7 +333,7 @@ function insertCSS(tabId, injectDetailsArray)
 }
 
 function changeExecutionMode(){
-    console.log("MODE CHANGED: " + settings.get("mode"));
+    //console.log("MODE CHANGED: " + settings.get("mode"));
     var mode = settings.get("mode");
     if(mode == 'click'){
         chrome.browserAction.setTitle({

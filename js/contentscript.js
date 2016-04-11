@@ -53,6 +53,9 @@ $(document).ready(function(){
 			//console.log("DATE1: " + new Date().getTime());
 			$('body').html(response.body);
 		  	$('body').append(modal); 
+		  	$('body').append(modalRating);
+		  	$('body').attr('health-translator-lang', response.language);
+		  	//console.log("LANG:" + response.language);
 		  	//console.log("DATE2: " + new Date().getTime());
 
 			for(var i = 0; i < scripts.length; i++){
@@ -78,9 +81,67 @@ $(document).ready(function(){
 
 	function registerEvents(){
 
-	
-		console.log("REGISTERING TOOLTIPS");
 		var timer;
+
+		$('#health-translator-rating-modal').on('show.bs.modal', function (e) {
+			observer.disconnect();
+
+			$('#ht-rating-concept-name').text($('#health-translator-concept-name').text());
+
+			if($('#health-translator-definition').children().length > 0){
+				$('#ht-def-qual').show();
+			}
+
+			if($('#health-translator-references').children().length > 0){
+				$('#ht-ext-refs-qual').show();
+			}
+
+			if($('#health-translator-relationships').children().length > 0){
+				$('#ht-def-rels-qual').show();
+			}
+		});
+
+		$('#health-translator-rating-modal').on('hidden.bs.modal', function (e) {
+
+			$('ht-def-qual').hide();
+			$('ht-def-ext-refs-qual').hide();
+			$('ht-def-rels-qual').hide();
+			$('ht-sel1').barrating('clear');
+			$('ht-sel2').barrating('clear');
+			$('ht-sel3').barrating('clear');
+			$('ht-sel4').barrating('clear');
+
+			observeMutations(observer);
+		});
+
+		$('#ht-sel1').barrating({theme: 'bootstrap-stars'});
+		$('#ht-sel2').barrating({theme: 'bootstrap-stars'});
+		$('#ht-sel3').barrating({theme: 'bootstrap-stars'});
+		$('#ht-sel4').barrating({theme: 'bootstrap-stars'});
+
+		$('#ht-submit-rating').on('click', function (e) {
+
+			var data = {};
+
+			($('#ht-def-qual').css('display') == 'none') ? data.definition = -1 : data.definitions = parseInt($('#ht-sel1').val());
+			($('#ht-refs-qual').css('display') == 'none') ? data.externalReferences = -1 : data.externalReferences = parseInt($('#ht-sel2').val());
+			($('#ht-rels-qual').css('display') == 'none') ? data.relationships = -1 : data.relationships = parseInt($('#ht-sel3').val());
+			data.general = parseInt($('#ht-sel4').val());
+			data.language = $("body").attr('health-translator-lang');
+			data.cui = $('#health-translator-modal').attr('data-cui');
+
+			
+			chrome.runtime.sendMessage({action: "submitRating", data: data}, function(response){
+				if(response.success){
+					$('#health-translator-rating-modal').modal('toggle');
+					$('#health-translator-footer').empty();
+					//delete the button
+				}
+				//on success, delete the button from the previous modal
+		    });
+
+			//observeMutations(observer);
+		});
 
 		$('.medical-term-translate[data-toggle="tooltip"]').tooltip({
 		    trigger: 'manual',
@@ -136,6 +197,7 @@ $(document).ready(function(){
 			tooltip.tooltip("hide");
 
 			$('#health-translator-concept-name').text(term);
+			$('#health-translator-modal').attr('data-cui', cui);
 
 			var conceptData = {
 				cui: cui,
@@ -218,6 +280,12 @@ $(document).ready(function(){
 					});
 				}
 
+				
+				if(! response.hasRating){
+					$('#health-translator-footer').append('<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#health-translator-rating-modal">Rate This</button>');
+				}
+				
+
 				observeMutations(observer);
 			});
 			
@@ -235,7 +303,7 @@ $(document).ready(function(){
 			$('#health-translator-references').empty();
 			$('#health-translator-relationships').empty();
 			$('#health-translator-loading').show();
-
+			$('#health-translator-footer').empty();
 			observeMutations(observer);
 		});
 	};
@@ -277,17 +345,79 @@ modal += "				<img src=\"" + chrome.extension.getURL("images/loading.gif") + "\"
 modal += "      	<\/div>";
 modal += "			<div id=\"health-translator-definition\">";
 modal += "      	<\/div>";
-modal += "			<br>";
 modal += "			<div class=\"text-center\" id=\"health-translator-references\">";
 modal += "			<\/div>";
-modal += "			<br>";
 modal += "			<div id=\"health-translator-relationships\">";
 modal += "			<\/div>";
 modal += "      <\/div>";
-modal += "      <div class=\"modal-footer text-center\">";
-modal += "        <button type=\"button\" class=\"btn btn-primary\" data-dismiss=\"modal\">Close<\/button>";
+modal += "      <div id=\"health-translator-footer\" class=\"modal-footer text-center\">";
+//modal += "        <button type=\"button\" class=\"btn btn-primary\">Rate This<\/button>";
 modal += "      <\/div>";
 modal += "    <\/div>";
 modal += "  <\/div>";
 modal += "<\/div>";
 modal += "<\/div>";
+
+var modalRating="";
+modalRating += "<div class=\"health-translator\">";
+modalRating += "	<div class=\"modal fade\" id=\"health-translator-rating-modal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"health-translator-rating-modal-label\" data-backdrop=\"static\" data-keyboard=\"false\">";
+modalRating += "	  <div class=\"modal-dialog\" role=\"document\">";
+modalRating += "	    <div class=\"modal-content\">";
+modalRating += "	      <div class=\"modal-header\">";
+modalRating += "	        <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;<\/span><\/button>";
+modalRating += "	        <h4 id=\"ht-rating-concept-name\"><\/h4>";
+modalRating += "	      <\/div>";
+modalRating += "	      <div class=\"modal-body\">";
+modalRating += "	      	<div>";
+modalRating += "	      		<div class=\"text-center\">";
+modalRating += "	      			<div id=\"ht-def-qual\" style=\"display:none\">";
+modalRating += "			      		<p>Definition Quality<\/p>";
+modalRating += "			      		<select id=\"ht-sel1\">";
+modalRating += "						  <option value=\"1\">1<\/option>";
+modalRating += "						  <option value=\"2\">2<\/option>";
+modalRating += "						  <option value=\"3\">3<\/option>";
+modalRating += "						  <option value=\"4\">4<\/option>";
+modalRating += "						  <option value=\"5\">5<\/option>";
+modalRating += "						<\/select>";
+modalRating += "					<\/div>";
+modalRating += "					<div id=\"ht-ext-refs-qual\" style=\"display:none\">";
+modalRating += "		      			<p>External References Quality<\/p>";
+modalRating += "		      			<select id=\"ht-sel2\">";
+modalRating += "						  <option value=\"1\">1<\/option>";
+modalRating += "						  <option value=\"2\">2<\/option>";
+modalRating += "						  <option value=\"3\">3<\/option>";
+modalRating += "						  <option value=\"4\">4<\/option>";
+modalRating += "						  <option value=\"5\">5<\/option>";
+modalRating += "						<\/select>";
+modalRating += "		      		<\/div>";
+modalRating += "		      		<div id=\"ht-rels-qual\" style=\"display:none\">";
+modalRating += "		      			<p>Relationships Quality<\/p>";
+modalRating += "			      		<select id=\"ht-sel3\" class=\"pull-right\">";
+modalRating += "						  <option value=\"1\">1<\/option>";
+modalRating += "						  <option value=\"2\">2<\/option>";
+modalRating += "						  <option value=\"3\">3<\/option>";
+modalRating += "						  <option value=\"4\">4<\/option>";
+modalRating += "						  <option value=\"5\">5<\/option>";
+modalRating += "						<\/select>";
+modalRating += "		      		<\/div>";
+modalRating += "		      		<div id=\"ht-general-qual\">";
+modalRating += "		      			<p>General Evaluation<\/p>";
+modalRating += "		      			<select id=\"ht-sel4\" class=\"pull-right\">";
+modalRating += "						  <option value=\"1\">1<\/option>";
+modalRating += "						  <option value=\"2\">2<\/option>";
+modalRating += "						  <option value=\"3\">3<\/option>";
+modalRating += "						  <option value=\"4\">4<\/option>";
+modalRating += "						  <option value=\"5\">5<\/option>";
+modalRating += "						<\/select>";
+modalRating += "		      		<\/div>";
+modalRating += "      			<\/div>";
+modalRating += "	      	<\/div>";
+modalRating += "	      <div class=\"modal-footer\" style=\"text-align:center\">";
+modalRating += "	        <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Cancel<\/button>";
+modalRating += "	        <button type=\"button\" class=\"btn btn-primary\" id=\"ht-submit-rating\">Submit<\/button>";
+modalRating += "	      <\/div>";
+modalRating += "	    <\/div>";
+modalRating += "	  <\/div>";
+modalRating += "	<\/div>";
+modalRating += "<\/div>";
+

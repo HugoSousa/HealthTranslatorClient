@@ -27,7 +27,8 @@ div.tooltip-inner {
 	max-height: calc(100vh - 200px);
 }
 
-#health-translator-modal .modal-title:first-letter{
+#health-translator-concept-name:first-letter{
+	display: block;
 	text-transform: uppercase;
 }
 
@@ -38,4 +39,8 @@ div.tooltip-inner {
 
 #health-translator-concept-name{
 	margin-bottom: 5px;
+}
+
+#health-translator-footer{
+	text-align: center;
 }
