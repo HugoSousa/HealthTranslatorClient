@@ -3,9 +3,8 @@ $(document).ready(function(){
 	console.log("The page is ready");
 	MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
 
-	var observer = new MutationObserver(function(mutations, observer) {
-	    // fired when a mutation occurs
-	    //cancel active ajax request and send again
+	observer = new MutationObserver(function(mutations, observer) {
+
 	    console.log("Change in the DOM - Processing the document again");
 
 	    var bodyData = {
@@ -23,14 +22,18 @@ $(document).ready(function(){
 
 	});
 
-	observeMutations(observer);
-
-	function observeMutations(observer){
-		observer.observe(document, {
+	observeMutations = function (){
+		observer.observe(document.body, {
 			childList: true,
 			subtree: true
 		});
 	}
+
+	disconnectObserver = function (){
+		observer.disconnect();
+	}
+
+	observeMutations(observer);
 
 	function replaceDocument(response){
 
@@ -46,7 +49,7 @@ $(document).ready(function(){
 
 			var t1 = performance.now();
 
-			observer.disconnect();
+			disconnectObserver();
 
 			var scripts = Array.prototype.slice.call(document.scripts);
 			//console.log(scripts);
@@ -84,7 +87,7 @@ $(document).ready(function(){
 		var timer;
 
 		$('#health-translator-rating-modal').on('show.bs.modal', function (e) {
-			observer.disconnect();
+			disconnectObserver();
 
 			$('#ht-rating-concept-name').text($('#health-translator-concept-name').text());
 
@@ -146,21 +149,21 @@ $(document).ready(function(){
 		$('.medical-term-translate[data-toggle="tooltip"]').tooltip({
 		    trigger: 'manual',
 		    animation: false,
-		    placement: "auto right",
+		    placement: 'auto right',
 		    container: "body",
 		    template: '<div class="health-translator tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
 		}).on("mouseenter", function () {
 	        var _this = this;
 
 	        timer = setTimeout(function () {
-	        	observer.disconnect();
+	        	disconnectObserver();
                 $(_this).tooltip("show");
                 observeMutations(observer);
         	}, 450);
 	        
 	        
 	        $(".tooltip").on("mouseleave", function () {
-	        	observer.disconnect();
+	        	disconnectObserver();
 	            $(_this).tooltip('hide');
 	            observeMutations(observer);
 	        });
@@ -172,7 +175,7 @@ $(document).ready(function(){
 
 	        setTimeout(function () {
 	            if (!$(".tooltip:hover").length) {
-	            	observer.disconnect();
+	            	disconnectObserver();
 	                $(_this).tooltip("hide");
 	                observeMutations(observer);
 	            }
@@ -182,7 +185,7 @@ $(document).ready(function(){
 
 		$('body').on('click', '.tooltip a', function(){
 
-			observer.disconnect();
+			disconnectObserver();
 
 			$('#health-translator-loading').show();
 
@@ -246,7 +249,7 @@ $(document).ready(function(){
 
 					$('#health-translator-relationships').on('mousedown', function(event) {
 						//console.log("CLICK RELATIONSHIPS");
-						observer.disconnect();
+						disconnectObserver();
 					});
 
 					$('#health-translator-relationships').on('nodeCollapsed nodeExpanded', function(event) {
@@ -293,7 +296,7 @@ $(document).ready(function(){
 
 		$('#health-translator-modal').on('hidden.bs.modal', function () {
 
-			observer.disconnect();
+			disconnectObserver();
 			console.log("Hidden modal");
 			
 			//delete modal data
@@ -314,8 +317,6 @@ $(document).ready(function(){
 		body: LZString.compressToUTF16($('body').clone().find('script').remove().end().html())
 	};
 
-
-
 	//console.log("BODY: " + getDocTypeAsString() + document.documentElement.outerHTML );
 	console.log("Start Processing.");
 	//console.log("BODY: " + bodyData.body);
@@ -324,6 +325,8 @@ $(document).ready(function(){
 	chrome.runtime.sendMessage({action: "processDocument", data: bodyData}, function(response){
 	  	replaceDocument(response);	  	
 	});
+
+
 });
 
 var modal="";

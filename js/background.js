@@ -189,10 +189,11 @@ function sendSuggestion(data, tab){
         contentType: "application/json;charset=UTF-8",
         cache: false,
         success: function(result){
+            result.type = "suggestion";
             chrome.tabs.sendMessage(tab.id, result);
         },
         error: function(error){
-            chrome.tabs.sendMessage(tab.id, {success: false, reason: "There was an unexpected error on the request."});
+            chrome.tabs.sendMessage(tab.id, {type:"suggestion", success: false, reason: "There was an unexpected error on the request."});
             console.log("ERROR: " + JSON.stringify(error));
         }
     });
@@ -257,7 +258,8 @@ function browserActionCallback(tab){
             });
             injectScriptsAndCSS(tab.id);
         }else{
-            alert("This page was already processed.");
+            chrome.tabs.sendMessage(tab.id, {type:"process", alert: "This page was already processed"});
+            //alert("This page was already processed.");
         }
 
     });
