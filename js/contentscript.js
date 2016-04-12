@@ -6,19 +6,29 @@ $(document).ready(function(){
 	observer = new MutationObserver(function(mutations, observer) {
 
 	    console.log("Change in the DOM - Processing the document again");
+	    console.log(mutations);
 
-	    var bodyData = {
-			body: LZString.compressToUTF16($('body').clone().find('script').remove().end().html())
-		};
+	    for(var i = 0; i < mutations.length; i++){
 
-		var tx = performance.now();
+		    var jq = $(mutations[i].addedNodes);
+		    if(! jq.is("script")){
+			    console.log(jq);
 
-	    chrome.runtime.sendMessage({action: "processDocumentAgain", data: bodyData}, function(response){
-	    	console.log("RECEIVED PROCESS DOCUMENT AGAIN!");
-	    	replaceDocument(response);
-	    	tz = performance.now();
-	    	console.log("Processed document again in " + (tz - tx) + "ms.");
-	    });
+			    var data = {
+					body: LZString.compressToUTF16(jq[0].outerHTML),
+					language: $("body").attr('health-translator-lang')
+				};
+
+				var tx = performance.now();
+
+			    chrome.runtime.sendMessage({action: "processDocumentAgain", data: data}, function(response){
+			    	console.log("RECEIVED PROCESS DOCUMENT AGAIN!");
+			    	replaceDocument(response, jq);
+			    	tz = performance.now();
+			    	console.log("Processed document again in " + (tz - tx) + "ms.");
+			    });
+			}
+		}
 
 	});
 
@@ -27,15 +37,17 @@ $(document).ready(function(){
 			childList: true,
 			subtree: true
 		});
+		console.log("Observing mutations");
 	}
 
 	disconnectObserver = function (){
 		observer.disconnect();
+		console.log("Disconnected Observer");
 	}
 
 	observeMutations(observer);
 
-	function replaceDocument(response){
+	function replaceDocument(response, selector){
 
 		console.log("Response is returned after " + (t1 - t0) + "ms.");
 
@@ -51,35 +63,38 @@ $(document).ready(function(){
 
 			disconnectObserver();
 
-			var scripts = Array.prototype.slice.call(document.scripts);
-			//console.log(scripts);
-			//console.log("DATE1: " + new Date().getTime());
-			$('body').html(response.body);
-		  	$('body').append(modal); 
-		  	$('body').append(modalRating);
-		  	$('body').attr('health-translator-lang', response.language);
-		  	//console.log("LANG:" + response.language);
-		  	//console.log("DATE2: " + new Date().getTime());
+			if(typeof selector === "undefined"){
+				var scripts = Array.prototype.slice.call(document.scripts);
 
-			for(var i = 0; i < scripts.length; i++){
-				//console.log(scripts[i]);
-				//console.log(scripts[i].parentNode);
-				if( scripts[i].parentNode == null || (scripts[i].parentNode != null && scripts[i].parentNode.localName != 'head')){
-					var script = document.createElement('script');
-					script.innerHTML = scripts[i].innerHTML;
-					if(scripts[i].src){
-						script.src = scripts[i].src;
+				$('body').html(response.body);
+			  	$('body').append(modal); 
+			  	$('body').append(modalRating);
+			  	$('body').attr('health-translator-lang', response.language);
+
+				for(var i = 0; i < scripts.length; i++){
+					//console.log(scripts[i]);
+					//console.log(scripts[i].parentNode);
+					if( scripts[i].parentNode == null || (scripts[i].parentNode != null && scripts[i].parentNode.localName != 'head')){
+						var script = document.createElement('script');
+						script.innerHTML = scripts[i].innerHTML;
+						if(scripts[i].src){
+							script.src = scripts[i].src;
+						}
+						document.body.appendChild(script);
 					}
-					document.body.appendChild(script);
 				}
-			}
 
-		  	registerEvents();
+			  	registerEvents();
+		  	}else{
+		  		selector.html(response.body);
+		  		registerEvents();
+		  	}
+
 		  	var t2 = performance.now();
 		  	console.log("Whole processing is finished after " + (t2 - t0) + "ms.");
-	  	}
 
-	  	//observeMutations(observer);
+		  	observeMutations(observer);
+	  	}
 	}
 
 	function registerEvents(){

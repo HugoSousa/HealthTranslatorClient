@@ -1,5 +1,3 @@
-var current_processing;
-
 var settings = new Store("settings", {
     "mode": "click",
     "chv_only": "yes",
@@ -84,7 +82,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         case 'processDocument':
             console.log("PROCESS ON BACKGROUND");
             console.log(sender.tab.id);
-            processDocument(request.data, sender.tab.id, sendResponse);
+            processDocument(request.data, sender.tab.id, true, sendResponse);
             return true;
             break;
         case 'details':
@@ -93,10 +91,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             return true;
             break;
         case 'processDocumentAgain':
-            console.log("ABORT PROCESSING");
-            if(current_processing && current_processing.readyState != 4)
-                current_processing.abort()
-            processDocument(request.data, sender.tab.id, sendResponse);
+            console.log("PROCESS AGAIN ON BACKGROUND");
+            processDocument(request.data, sender.tab.id, false, sendResponse);
             return true;
             break;
         case 'submitRating':
@@ -111,7 +107,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 });
 
 
-function processDocument(data, tabId, sendResponse){
+function processDocument(data, tabId, isFirstProcess, sendResponse){
 
     //console.log("DATA: " + JSON.stringify(data));
     addSettingsData(data);
@@ -120,7 +116,7 @@ function processDocument(data, tabId, sendResponse){
     var time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds() + ":" + dt.getMilliseconds();
     console.log(time);
 
-    current_processing = $.ajax({
+    $.ajax({
         url: "http://localhost:8080/HealthTranslatorServer/webresources/process",
         type: "POST",
         data: JSON.stringify(data),
@@ -131,16 +127,19 @@ function processDocument(data, tabId, sendResponse){
 
             console.log("return result");
             console.log("result conceptCounter: " + result.conceptCounter);
-
-            if(result.processed){
-                chrome.browserAction.setBadgeText({
-                    text: result.conceptCounter.toString(), 
-                    tabId: tabId
-                });
+            var badgeText;
+            if(isFirstProcess){
+                if(result.processed){
+                    badgeText = result.conceptCounter.toString();
+                }else{
+                    badgeText = "X";
+                }
+                setBadgeText(tabId, badgeText);
             }else{
-                chrome.browserAction.setBadgeText({
-                    text: "X", 
-                    tabId: tabId
+                chrome.browserAction.getBadgeText({tabId: tabId}, function(text){
+                    counter = parseInt(text) + result.conceptCounter;
+                    badgeText = counter.toString();
+                    setBadgeText(tabId, badgeText);
                 });
             }
             
@@ -363,4 +362,11 @@ function getTUID(){
     }
 
     return id; 
+}
+
+function setBadgeText(tabId, text){
+    chrome.browserAction.setBadgeText({
+        text: text, 
+        tabId: tabId
+    });
 }
