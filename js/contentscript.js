@@ -10,23 +10,26 @@ $(document).ready(function(){
 
 	    for(var i = 0; i < mutations.length; i++){
 
-		    var jq = $(mutations[i].addedNodes);
-		    if(! jq.is("script")){
-			    console.log(jq);
+	    	console.log("MUTATIONS LENGTH");
+	    	if(mutations[i].addedNodes.length > 0){
+		    	var jq = $(mutations[i].addedNodes);
+			    if(! jq.is("script")){
+				    console.log(jq);
 
-			    var data = {
-					body: LZString.compressToUTF16(jq[0].outerHTML),
-					language: $("body").attr('health-translator-lang')
-				};
+				    var data = {
+						body: LZString.compressToUTF16(jq[0].outerHTML),
+						language: $("body").attr('health-translator-lang')
+					};
 
-				var tx = performance.now();
+					var tx = performance.now();
 
-			    chrome.runtime.sendMessage({action: "processDocumentAgain", data: data}, function(response){
-			    	console.log("RECEIVED PROCESS DOCUMENT AGAIN!");
-			    	replaceDocument(response, jq);
-			    	tz = performance.now();
-			    	console.log("Processed document again in " + (tz - tx) + "ms.");
-			    });
+				    chrome.runtime.sendMessage({action: "processDocumentAgain", data: data}, function(response){
+				    	console.log("RECEIVED PROCESS DOCUMENT AGAIN!");
+				    	replaceDocument(response, jq);
+				    	tz = performance.now();
+				    	console.log("Processed document again in " + (tz - tx) + "ms.");
+				    });
+				}
 			}
 		}
 
@@ -45,7 +48,7 @@ $(document).ready(function(){
 		console.log("Disconnected Observer");
 	}
 
-	observeMutations(observer);
+	observeMutations();
 
 	function replaceDocument(response, selector){
 
@@ -87,19 +90,26 @@ $(document).ready(function(){
 			  	registerEvents();
 		  	}else{
 		  		selector.html(response.body);
-		  		registerEvents();
 		  	}
 
 		  	var t2 = performance.now();
 		  	console.log("Whole processing is finished after " + (t2 - t0) + "ms.");
 
-		  	observeMutations(observer);
+		  	observeMutations();
 	  	}
 	}
 
 	function registerEvents(){
 
 		var timer;
+
+		$('#health-translator-modal').on('show.bs.modal hide.bs.modal', function (e) {
+			disconnectObserver();
+		});
+
+		$('#health-translator-modal').on('shown.bs.modal hidden.bs.modal', function (e) {
+			observeMutations();
+		});
 
 		$('#health-translator-rating-modal').on('show.bs.modal', function (e) {
 			disconnectObserver();
@@ -129,7 +139,7 @@ $(document).ready(function(){
 			$('ht-sel3').barrating('clear');
 			$('ht-sel4').barrating('clear');
 
-			observeMutations(observer);
+			observeMutations();
 		});
 
 		$('#ht-sel1').barrating({theme: 'bootstrap-stars'});
@@ -158,49 +168,26 @@ $(document).ready(function(){
 				//on success, delete the button from the previous modal
 		    });
 
-			//observeMutations(observer);
+			//observeMutations();
 		});
 
-		$('.medical-term-translate[data-toggle="tooltip"]').tooltip({
-		    trigger: 'manual',
+		$('body').tooltip({
+		    delay: {show: 300, hide: 350},
 		    animation: false,
 		    placement: 'auto right',
-		    container: "body",
-		    template: '<div class="health-translator tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
-		}).on("mouseenter", function () {
-	        var _this = this;
-
-	        timer = setTimeout(function () {
-	        	disconnectObserver();
-                $(_this).tooltip("show");
-        	}, 450);
-	        
-	        
-	        $(".tooltip").on("mouseleave", function () {
-	        	disconnectObserver();
-	            $(_this).tooltip('hide');
-	        });
-
-	    }).on("mouseleave", function () {
-	        var _this = this;
-
-	        clearTimeout(timer);
-
-	        setTimeout(function () {
-	            if (!$(".tooltip:hover").length) {
-	            	disconnectObserver();
-	                $(_this).tooltip("hide");
-	            }
-        	}, 300);
-	    });
+		    template: '<div class="health-translator tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>',
+		    selector: '.medical-term-translate'
+		})
 
 	    $('body').on('hidden.bs.tooltip shown.bs.tooltip', function () {
-			observeMutations(observer);
+			observeMutations();
+		});
+
+		$('body').on('hide.bs.tooltip show.bs.tooltip', function () {
+			disconnectObserver();
 		});
 
 		$('body').on('click', '.tooltip a', function(){
-
-			disconnectObserver();
 
 			$('#health-translator-loading').show();
 
@@ -211,10 +198,12 @@ $(document).ready(function(){
 			var conceptSpan = $('.medical-term-translate[aria-describedby="' + tooltip_id + '"]');
 			var term = conceptSpan.attr('data-term');
 			var cui = conceptSpan.attr('data-cui');
-			var lang = conceptSpan.attr('data-lang');
+			var lang = $("body").attr('health-translator-lang')
 			tooltip.tooltip("hide");
 
+			disconnectObserver();
 			$('#health-translator-concept-name').text(term);
+			observeMutations();
 			$('#health-translator-modal').attr('data-cui', cui);
 
 			var conceptData = {
@@ -224,6 +213,8 @@ $(document).ready(function(){
 			};
 
 			chrome.runtime.sendMessage({action: "details", data: conceptData}, function(response){
+
+				disconnectObserver();
 
 				$('#health-translator-loading').hide();
 
@@ -270,7 +261,7 @@ $(document).ready(function(){
 					$('#health-translator-relationships').on('nodeCollapsed nodeExpanded', function(event) {
 						//console.log("NODE COLLAPSED OR EXPANDED");
 						//timeout for DOM changes
-						setTimeout(function(){ observeMutations(observer); }, 5);
+						setTimeout(function(){ observeMutations(); }, 5);
 					});
 				}
 
@@ -304,7 +295,7 @@ $(document).ready(function(){
 				}
 				
 
-				observeMutations(observer);
+				observeMutations();
 			});
 			
 		});
@@ -322,7 +313,7 @@ $(document).ready(function(){
 			$('#health-translator-relationships').empty();
 			$('#health-translator-loading').show();
 			$('#health-translator-footer').empty();
-			observeMutations(observer);
+			observeMutations();
 		});
 	};
 
@@ -439,3 +430,27 @@ modalRating += "	  <\/div>";
 modalRating += "	<\/div>";
 modalRating += "<\/div>";
 
+
+//allow tooltip to keep open while hovering it
+var originalLeave = $.fn.tooltip.Constructor.prototype.leave;
+
+$.fn.tooltip.Constructor.prototype.leave = function(obj){
+  var self = obj instanceof this.constructor ?
+    obj : $(obj.currentTarget)[this.type](this.getDelegateOptions()).data('bs.' + this.type)
+  var container, timeout;
+
+  originalLeave.call(this, obj);
+
+  if(obj.currentTarget) {
+    container = $(obj.currentTarget).siblings('.tooltip')
+    timeout = self.timeout;
+    container.one('mouseenter', function(){
+      //We entered the actual tooltip – call off the dogs
+      clearTimeout(timeout);
+      //Let's monitor tooltip content instead
+      container.one('mouseleave', function(){
+        $.fn.tooltip.Constructor.prototype.leave.call(self, self);
+      });
+    })
+  }
+};
