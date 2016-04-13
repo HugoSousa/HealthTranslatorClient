@@ -173,14 +173,12 @@ $(document).ready(function(){
 	        timer = setTimeout(function () {
 	        	disconnectObserver();
                 $(_this).tooltip("show");
-                observeMutations(observer);
         	}, 450);
 	        
 	        
 	        $(".tooltip").on("mouseleave", function () {
 	        	disconnectObserver();
 	            $(_this).tooltip('hide');
-	            observeMutations(observer);
 	        });
 
 	    }).on("mouseleave", function () {
@@ -192,11 +190,13 @@ $(document).ready(function(){
 	            if (!$(".tooltip:hover").length) {
 	            	disconnectObserver();
 	                $(_this).tooltip("hide");
-	                observeMutations(observer);
 	            }
         	}, 300);
 	    });
 
+	    $('body').on('hidden.bs.tooltip shown.bs.tooltip', function () {
+			observeMutations(observer);
+		});
 
 		$('body').on('click', '.tooltip a', function(){
 

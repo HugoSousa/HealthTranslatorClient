@@ -3,7 +3,6 @@ var observeMutations;
 var disconnectObserver;
 
 toastr.options.preventDuplicates = true;
-//toastr.options.timeOut = "50000";
 
 toastr.options.onHidden = function() {
 
