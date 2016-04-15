@@ -147,8 +147,10 @@ function processDocument(data, tabId, isFirstProcess, sendResponse){
         },
         error: function(error){
             console.log("ERROR: " + JSON.stringify(error));
+
             if(isFirstProcess)
                 setBadgeText(tabId, "-");
+
             sendResponse(error);
         }
     });

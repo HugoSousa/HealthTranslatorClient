@@ -3,29 +3,33 @@ $(document).ready(function(){
 	console.log("The page is ready");
 	MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
 
+	
 	observer = new MutationObserver(function(mutations, observer) {
 
 	    console.log("Change in the DOM - Processing the document again");
 	    console.log(mutations);
 
-	    for(var i = 0; i < mutations.length; i++){
+		for(var i = 0; i < mutations.length; i++){
 
-	    	console.log("MUTATIONS LENGTH");
 	    	if(mutations[i].addedNodes.length > 0){
+
 		    	var jq = $(mutations[i].addedNodes);
 			    if(! jq.is("script")){
 				    console.log(jq);
 
 				    var data = {
-						body: LZString.compressToUTF16(jq[0].outerHTML),
+						body: LZString.compressToUTF16($('body').clone().find('script').remove().end().html()),
 						language: $("body").attr('health-translator-lang')
 					};
+					console.log("DATA REPLACE AGAIN");
+					console.log(data);
+
 
 					var tx = performance.now();
 
 				    chrome.runtime.sendMessage({action: "processDocumentAgain", data: data}, function(response){
 				    	console.log("RECEIVED PROCESS DOCUMENT AGAIN!");
-				    	replaceDocument(response, jq);
+				    	replaceDocument(response);
 				    	tz = performance.now();
 				    	console.log("Processed document again in " + (tz - tx) + "ms.");
 				    });
@@ -40,12 +44,13 @@ $(document).ready(function(){
 			childList: true,
 			subtree: true
 		});
-		console.log("Observing mutations");
+		//console.log("Observing mutations");
+
 	}
 
 	disconnectObserver = function (){
 		observer.disconnect();
-		console.log("Disconnected Observer");
+		//console.log("Disconnected Observer");
 	}
 
 	observeMutations();
@@ -66,41 +71,74 @@ $(document).ready(function(){
 
 			disconnectObserver();
 
-			if(typeof selector === "undefined"){
-				var scripts = Array.prototype.slice.call(document.scripts);
+			var scripts = Array.prototype.slice.call(document.scripts);
 
-				$('body').html(response.body);
-			  	$('body').append(modal); 
-			  	$('body').append(modalRating);
-			  	$('body').attr('health-translator-lang', response.language);
+			//var head_scripts = Array.prototype.slice.call(document.getElementsByTagName('head')[0].scripts);
 
-				for(var i = 0; i < scripts.length; i++){
-					//console.log(scripts[i]);
-					//console.log(scripts[i].parentNode);
-					if( scripts[i].parentNode == null || (scripts[i].parentNode != null && scripts[i].parentNode.localName != 'head')){
-						var script = document.createElement('script');
-						script.innerHTML = scripts[i].innerHTML;
-						if(scripts[i].src){
-							script.src = scripts[i].src;
-						}
-						document.body.appendChild(script);
+			$('body').html(response.body);
+		  	$('body').append(modal); 
+		  	$('body').append(modalRating);
+		  	$('body').attr('health-translator-lang', response.language);
+
+
+		  	/*
+		  	for(var i = 0; i < scripts.length; i++){
+		  		if(scripts[i].parentNode != null && scripts[i].parentNode.localName == 'head'){
+		  			document.getElementsByTagName('head')[0].removeChild(scripts[i]);
+		  		}
+		  	}
+		  	*/
+		  	//$('head script').remove();
+			for(var i = 0; i < scripts.length; i++){
+				//console.log(scripts[i]);
+				/*
+				var script = document.createElement('script');
+				script.innerHTML = scripts[i].innerHTML;
+				if(scripts[i].src){
+					script.src = scripts[i].src;
+				}
+
+				//console.log("Append to body");
+				document.body.appendChild(script);
+				*/
+				if( scripts[i].parentNode == null || (scripts[i].parentNode != null && scripts[i].parentNode.localName != 'head')){
+					var script = document.createElement('script');
+					script.innerHTML = scripts[i].innerHTML;
+					if(scripts[i].src){
+						script.src = scripts[i].src;
+
 					}
 				}
 
-			  	registerEvents();
-		  	}else{
-		  		selector.html(response.body);
-		  	}
+				//disconnectObserver();
+				if(scripts[i].parentNode != null && scripts[i].parentNode.localName == 'head'){
+					var script = document.createElement('script');
+					script.innerHTML = scripts[i].innerHTML;
+					if(scripts[i].src){
+						script.src = scripts[i].src;
+					}
+
+					//remove the old script and add the new one
+					document.getElementsByTagName('head')[0].removeChild(scripts[i]);
+					document.getElementsByTagName('head')[0].appendChild(script);
+				}
+				
+			}
+
+	  		registerEvents();
 
 		  	var t2 = performance.now();
 		  	console.log("Whole processing is finished after " + (t2 - t0) + "ms.");
 
-		  	observeMutations();
+		  	//the scripts in head make invisible DOM changes later
+		  	setTimeout(function(){observeMutations();}, 50);
+
 	  	}
 	}
 
 	function registerEvents(){
-
+		console.log("REGISTER EVENTS");
+		
 		var timer;
 
 		$('#health-translator-modal').on('show.bs.modal hide.bs.modal', function (e) {
@@ -218,13 +256,24 @@ $(document).ready(function(){
 
 				$('#health-translator-loading').hide();
 
+				if(response.definition){
+					$('#health-translator-definition').prepend("<h4 class=\"text-center\">Definition</h4>");
+				}else{
+					$('#health-translator-definition').prepend("<h4 class=\"text-center\">No definition found!</h4>");
+				}
+
 				console.log(response.relationships);
 				var rels = response.relationships;
 
 				if(! $.isEmptyObject(rels)){
+					console.log("append relationships");
+					$('#health-translator-relationships').prepend("<h4 class=\"text-center\">Relationships</h4>");
+
 					var tree = [];
 					for (var key in rels) {
 
+						console.log("RELATIONSHIP: " + key);
+						console.log("TRANSLATION: " + (relationships_dictionary[key] || key));
 						var node = { text: key, nodes: [], tags: [], selectable: false };
 						tree.push(node);
 
@@ -244,7 +293,7 @@ $(document).ready(function(){
 					}
 					console.log(tree);
 
-					$('#health-translator-relationships').treeview({
+					$('#health-translator-relationships-tree').treeview({
 						data: tree, 
 						levels: 0, 
 						showBorder: false, 
@@ -316,20 +365,22 @@ $(document).ready(function(){
 			observeMutations();
 		});
 	};
-
+	
 	var bodyData = {
 		//remove scripts in order to remove unnecessary chunks of text in request
 		//scripts are manually added in the response
 		body: LZString.compressToUTF16($('body').clone().find('script').remove().end().html())
 	};
+	
 
 	//console.log("BODY: " + getDocTypeAsString() + document.documentElement.outerHTML );
 	console.log("Start Processing.");
 	//console.log("BODY: " + bodyData.body);
 	//console.log("DECOMPRESSED BODY: " + LZString.decompress(bodyData.body))
+
 	var t0 = performance.now();
 	chrome.runtime.sendMessage({action: "processDocument", data: bodyData}, function(response){
-	  	replaceDocument(response);	  	
+	  	replaceDocument(response);	
 	});
 
 
@@ -357,6 +408,7 @@ modal += "      	<\/div>";
 modal += "			<div class=\"text-center\" id=\"health-translator-references\">";
 modal += "			<\/div>";
 modal += "			<div id=\"health-translator-relationships\">";
+modal += "				<div id=\"health-translator-relationships-tree\"><\/div>";
 modal += "			<\/div>";
 modal += "      <\/div>";
 modal += "      <div id=\"health-translator-footer\" class=\"modal-footer text-center\">";
@@ -430,27 +482,10 @@ modalRating += "	  <\/div>";
 modalRating += "	<\/div>";
 modalRating += "<\/div>";
 
-
 //allow tooltip to keep open while hovering it
 var originalLeave = $.fn.tooltip.Constructor.prototype.leave;
 
-$.fn.tooltip.Constructor.prototype.leave = function(obj){
-  var self = obj instanceof this.constructor ?
-    obj : $(obj.currentTarget)[this.type](this.getDelegateOptions()).data('bs.' + this.type)
-  var container, timeout;
-
-  originalLeave.call(this, obj);
-
-  if(obj.currentTarget) {
-    container = $(obj.currentTarget).siblings('.tooltip')
-    timeout = self.timeout;
-    container.one('mouseenter', function(){
-      //We entered the actual tooltip – call off the dogs
-      clearTimeout(timeout);
-      //Let's monitor tooltip content instead
-      container.one('mouseleave', function(){
-        $.fn.tooltip.Constructor.prototype.leave.call(self, self);
-      });
-    })
-  }
+var relationships_dictionary = {
+	inverse_isa: "some_other_string"
 };
+
