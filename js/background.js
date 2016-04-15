@@ -1,4 +1,4 @@
-var currentProcessing;
+var currentProcessing = {};
 
 var settings = new Store("settings", {
     "mode": "click",
@@ -93,7 +93,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             break;
         case 'processDocumentAgain':
             console.log("PROCESS AGAIN ON BACKGROUND");
-            currentProcessing.abort();
+            if(sender.tab.id in currentProcessing)
+                currentProcessing[sender.tab.id].abort();
             processDocument(request.data, sender.tab.id, request.isFirstProcess, sendResponse);
             return true;
             break;
@@ -122,7 +123,7 @@ function processDocument(data, tabId, isFirstProcess, sendResponse){
     var time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds() + ":" + dt.getMilliseconds();
     console.log(time);
 
-    currentProcessing = $.ajax({
+    currentProcessing[tabId] = $.ajax({
         url: "http://localhost:8080/HealthTranslatorServer/webresources/process",
         type: "POST",
         data: JSON.stringify(data),
@@ -141,7 +142,8 @@ function processDocument(data, tabId, isFirstProcess, sendResponse){
                 badgeText = "X";
             }
             setBadgeText(tabId, badgeText);
-            
+            delete currentProcessing[tabId];
+            console.log(currentProcessing);
             sendResponse(result);
         },
         error: function(error){
@@ -150,6 +152,7 @@ function processDocument(data, tabId, isFirstProcess, sendResponse){
             if(! isFirstProcess)
                 setBadgeText(tabId, "-");
 
+            console.log(currentProcessing);
             sendResponse(error);
         }
     });
