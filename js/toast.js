@@ -4,6 +4,8 @@ var disconnectObserver;
 
 toastr.options.preventDuplicates = true;
 
+var title = "HealthTranslator";
+
 toastr.options.onHidden = function() {
 
 	if(typeof observer !== "undefined"){
@@ -28,12 +30,12 @@ chrome.runtime.onMessage.addListener(function(request, sender, response) {
 
 	if(request.type == "suggestion"){	
 		if(request.success){
-			toastr.info("The concept was successfully submitted! Thank you for your cooperation.");
+			toastr.info("The concept was successfully submitted! Thank you for your cooperation.", title);
 		}else{
-			toastr.warning(request.reason);
+			toastr.warning(request.reason, title);
 		}
 	}else if(request.type == "process"){
-		toastr.warning(request.alert);
+		toastr.warning(request.alert, title);
 	}
 
 	if(typeof observer !== "undefined")

@@ -1,7 +1,6 @@
 $(document).ready(function(){ 
 
 	var isFirstProcess = true;
-	console.log("The page is ready");
 	MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
 	
 	observer = new MutationObserver(function(mutations, observer) {
@@ -10,17 +9,21 @@ $(document).ready(function(){
 	    console.log(mutations);
 
 	    var execute = false;
+
+	    if(isFirstProcess)
+			execute = true;
+
 		for(var i = 0; i < mutations.length; i++){
-
-			if(isFirstProcess)
-				execute = true;
 	    	if(mutations[i].addedNodes.length > 0){
-
 		    	var jq = $(mutations[i].addedNodes);
 			    if(! isFirstProcess && ! jq.is("script")){
 			    	execute = true;
 			    	break;
 				}
+			}
+			if(mutations[i].type == "characterData"){
+				execute = true;
+				break;
 			}
 		}
 
@@ -56,10 +59,10 @@ $(document).ready(function(){
 	observeMutations = function (){
 		observer.observe(document.body, {
 			childList: true,
-			subtree: true
+			subtree: true,
+			characterData: true
 		});
 		//console.log("Observing mutations");
-
 	}
 
 	disconnectObserver = function (){
