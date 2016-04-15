@@ -11,23 +11,32 @@
 
 /* TOOLTIP */
 
-div.tooltip-inner {
+div.health-translator.tooltip div.tooltip-inner {
     max-width: 380px !important;
+    
 }
 
-/* ensure that there are no CSS rules overriding the tooltip text*/
-.health-translator.tooltip p{
-  all: inherit !important;
+div.health-translator.tooltip div.tooltip-inner p.definition{
+    text-align:justify !important;
+    margin-top: 10px;
+    margin-right: 10px;
+    margin-left: 10px;
 }
 
 /* MODAL */
+
+#health-translator-modal, #health-translator-rating-modal{
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 14px;
+}
+
 
 #health-translator-modal .modal-body{
 	overflow-y:auto;
 	max-height: calc(100vh - 200px);
 }
 
-#health-translator-concept-name:first-letter{
+#health-translator-concept-name:first-letter, #ht-rating-concept-name:first-letter{
 	display: block;
 	text-transform: uppercase;
 }
@@ -43,4 +52,8 @@ div.tooltip-inner {
 
 #health-translator-footer{
 	text-align: center;
+}
+
+#health-translator-references div.ext-ref{
+	margin-bottom: 5px;
 }

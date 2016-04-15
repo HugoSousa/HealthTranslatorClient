@@ -1,3 +1,5 @@
+var currentProcessing;
+
 var settings = new Store("settings", {
     "mode": "click",
     "chv_only": "yes",
@@ -81,8 +83,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     switch (request.action) {
         case 'processDocument':
             console.log("PROCESS ON BACKGROUND");
-            console.log(sender.tab.id);
-            processDocument(request.data, sender.tab.id, true, sendResponse);
+            processDocument(request.data, sender.tab.id, request.isFirstProcess, sendResponse);
             return true;
             break;
         case 'details':
@@ -92,7 +93,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             break;
         case 'processDocumentAgain':
             console.log("PROCESS AGAIN ON BACKGROUND");
-            processDocument(request.data, sender.tab.id, false, sendResponse);
+            currentProcessing.abort();
+            processDocument(request.data, sender.tab.id, request.isFirstProcess, sendResponse);
             return true;
             break;
         case 'submitRating':
@@ -109,14 +111,13 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
 function processDocument(data, tabId, isFirstProcess, sendResponse){
 
-    //console.log("DATA: " + JSON.stringify(data));
     addSettingsData(data);
 
     var dt = new Date();
     var time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds() + ":" + dt.getMilliseconds();
     console.log(time);
 
-    $.ajax({
+    currentProcessing = $.ajax({
         url: "http://localhost:8080/HealthTranslatorServer/webresources/process",
         type: "POST",
         data: JSON.stringify(data),
@@ -128,27 +129,20 @@ function processDocument(data, tabId, isFirstProcess, sendResponse){
             console.log("return result");
             console.log("result conceptCounter: " + result.conceptCounter);
             var badgeText;
-            if(isFirstProcess){
-                if(result.processed){
-                    badgeText = result.conceptCounter.toString();
-                }else{
-                    badgeText = "X";
-                }
-                setBadgeText(tabId, badgeText);
+
+            if(result.processed){
+                badgeText = result.conceptCounter.toString();
             }else{
-                chrome.browserAction.getBadgeText({tabId: tabId}, function(text){
-                    counter = parseInt(text) + result.conceptCounter;
-                    badgeText = counter.toString();
-                    setBadgeText(tabId, badgeText);
-                });
+                badgeText = "X";
             }
+            setBadgeText(tabId, badgeText);
             
             sendResponse(result);
         },
         error: function(error){
             console.log("ERROR: " + JSON.stringify(error));
 
-            if(isFirstProcess)
+            if(! isFirstProcess)
                 setBadgeText(tabId, "-");
 
             sendResponse(error);

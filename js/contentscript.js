@@ -1,42 +1,56 @@
 $(document).ready(function(){ 
 
+	var isFirstProcess = true;
 	console.log("The page is ready");
 	MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
-
 	
 	observer = new MutationObserver(function(mutations, observer) {
 
-	    console.log("Change in the DOM - Processing the document again");
+	    console.log("Change in the DOM");
 	    console.log(mutations);
 
+	    var execute = false;
 		for(var i = 0; i < mutations.length; i++){
 
+			if(isFirstProcess)
+				execute = true;
 	    	if(mutations[i].addedNodes.length > 0){
 
 		    	var jq = $(mutations[i].addedNodes);
-			    if(! jq.is("script")){
-				    console.log(jq);
-
-				    var data = {
-						body: LZString.compressToUTF16($('body').clone().find('script').remove().end().html()),
-						language: $("body").attr('health-translator-lang')
-					};
-					console.log("DATA REPLACE AGAIN");
-					console.log(data);
-
-
-					var tx = performance.now();
-
-				    chrome.runtime.sendMessage({action: "processDocumentAgain", data: data}, function(response){
-				    	console.log("RECEIVED PROCESS DOCUMENT AGAIN!");
-				    	replaceDocument(response);
-				    	tz = performance.now();
-				    	console.log("Processed document again in " + (tz - tx) + "ms.");
-				    });
+			    if(! isFirstProcess && ! jq.is("script")){
+			    	execute = true;
+			    	break;
 				}
 			}
 		}
 
+		if(execute){
+
+			console.log("Processing the document again");
+
+		    var data = {
+				body: LZString.compressToUTF16($('body').clone().find('script').remove().end().html()),
+				language: $("body").attr('health-translator-lang')
+			};
+
+			console.log("DATA REPLACE AGAIN");
+			//console.log($('body').clone().find('script').remove().end().html());
+
+			var tx = performance.now();
+
+		    chrome.runtime.sendMessage({action: "processDocumentAgain", data: data, isFirstProcess: isFirstProcess}, function(response){
+		    	console.log("RECEIVED PROCESS DOCUMENT AGAIN!");
+		    	console.log(isFirstProcess);
+
+		    	if(response.processed)
+		    		isFirstProcess = false;
+
+		    	replaceDocument(response);
+
+		    	tz = performance.now();
+		    	console.log("Processed document again in " + (tz - tx) + "ms.");
+		    });
+		}
 	});
 
 	observeMutations = function (){
@@ -53,9 +67,8 @@ $(document).ready(function(){
 		//console.log("Disconnected Observer");
 	}
 
-	observeMutations();
 
-	function replaceDocument(response, selector){
+	function replaceDocument(response){
 
 		console.log("Response is returned after " + (t1 - t0) + "ms.");
 
@@ -76,31 +89,16 @@ $(document).ready(function(){
 			//var head_scripts = Array.prototype.slice.call(document.getElementsByTagName('head')[0].scripts);
 
 			$('body').html(response.body);
-		  	$('body').append(modal); 
-		  	$('body').append(modalRating);
-		  	$('body').attr('health-translator-lang', response.language);
+			$('body').attr('health-translator-lang', response.language);
 
+		  	if(! $('#health-translator-modal').length)
+		  		$('body').append(modal); 
+		  	if(! $('#health-translator-rating-modal').length)
+		  		$('body').append(modalRating);
+		  	
 
-		  	/*
-		  	for(var i = 0; i < scripts.length; i++){
-		  		if(scripts[i].parentNode != null && scripts[i].parentNode.localName == 'head'){
-		  			document.getElementsByTagName('head')[0].removeChild(scripts[i]);
-		  		}
-		  	}
-		  	*/
-		  	//$('head script').remove();
 			for(var i = 0; i < scripts.length; i++){
-				//console.log(scripts[i]);
-				/*
-				var script = document.createElement('script');
-				script.innerHTML = scripts[i].innerHTML;
-				if(scripts[i].src){
-					script.src = scripts[i].src;
-				}
-
-				//console.log("Append to body");
-				document.body.appendChild(script);
-				*/
+				
 				if( scripts[i].parentNode == null || (scripts[i].parentNode != null && scripts[i].parentNode.localName != 'head')){
 					var script = document.createElement('script');
 					script.innerHTML = scripts[i].innerHTML;
@@ -143,6 +141,7 @@ $(document).ready(function(){
 
 		$('#health-translator-modal').on('show.bs.modal hide.bs.modal', function (e) {
 			disconnectObserver();
+			$('#health-translator-footer').hide();
 		});
 
 		$('#health-translator-modal').on('shown.bs.modal hidden.bs.modal', function (e) {
@@ -201,16 +200,14 @@ $(document).ready(function(){
 				if(response.success){
 					$('#health-translator-rating-modal').modal('toggle');
 					$('#health-translator-footer').empty();
-					//delete the button
 				}
-				//on success, delete the button from the previous modal
 		    });
 
 			//observeMutations();
 		});
 
 		$('body').tooltip({
-		    delay: {show: 300, hide: 350},
+		    delay: {show: 300, hide: 99999},
 		    animation: false,
 		    placement: 'auto right',
 		    template: '<div class="health-translator tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>',
@@ -258,8 +255,9 @@ $(document).ready(function(){
 
 				if(response.definition){
 					$('#health-translator-definition').prepend("<h4 class=\"text-center\">Definition</h4>");
+					$('#health-translator-definition').append("<p class=\"text-justify\">" + response.definition + "</p>");
 				}else{
-					$('#health-translator-definition').prepend("<h4 class=\"text-center\">No definition found!</h4>");
+					//$('#health-translator-definition').prepend("<h4 class=\"text-center\">No definition found!</h4>");
 				}
 
 				console.log(response.relationships);
@@ -291,6 +289,8 @@ $(document).ready(function(){
 					        
 					    }				
 					}
+
+					console.log("RELATIONSHIPS TREE:");
 					console.log(tree);
 
 					$('#health-translator-relationships-tree').treeview({
@@ -326,7 +326,7 @@ $(document).ready(function(){
 
 				if(response.references.length == 0){
 					console.log("No refs");
-					$('#health-translator-references').append("<h4>No external references found.</h4>");
+					//$('#health-translator-references').append("<h4>No external references found.</h4>");
 				}else{
 					$('#health-translator-references').append("<h4>External References</h4>");
 					response.references.forEach(function(obj) {
@@ -334,13 +334,16 @@ $(document).ready(function(){
 						var url = obj.url;
 						var label = obj.label;
 						var source = obj.source;
-						$('#health-translator-references').append("<div><a href=\""+ url + "\" target=\"_blank\">" + source + " - " + label + "</a>");
+						$('#health-translator-references').append("<div class=\"ext-ref\"><a href=\""+ url + "\" target=\"_blank\">" + source + " - " + label + "</a>");
 					});
 				}
 
 				
 				if(! response.hasRating){
 					$('#health-translator-footer').append('<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#health-translator-rating-modal">Rate This</button>');
+					$('#health-translator-footer').show();
+				}else{
+					$('#health-translator-footer').hide();
 				}
 				
 
@@ -366,6 +369,9 @@ $(document).ready(function(){
 		});
 	};
 	
+
+	observeMutations();
+
 	var bodyData = {
 		//remove scripts in order to remove unnecessary chunks of text in request
 		//scripts are manually added in the response
@@ -379,7 +385,11 @@ $(document).ready(function(){
 	//console.log("DECOMPRESSED BODY: " + LZString.decompress(bodyData.body))
 
 	var t0 = performance.now();
-	chrome.runtime.sendMessage({action: "processDocument", data: bodyData}, function(response){
+	console.log(isFirstProcess);
+	chrome.runtime.sendMessage({action: "processDocument", data: bodyData, isFirstProcess: isFirstProcess}, function(response){
+    	if(response.processed)
+			isFirstProcess = false;
+
 	  	replaceDocument(response);	
 	});
 
