@@ -25,6 +25,14 @@ $(document).ready(function(){
 				execute = true;
 				break;
 			}
+			if(mutations[i].removedNodes.length > 0){
+				var removedConcepts = 0;
+				for(var j = 0; j < mutations[i].removedNodes.length; j++){
+					removedHTML = $.parseHTML(mutations[i].removedNodes[j].outerHTML);
+					removedCount = $(removedHTML).find('x-health-translator.health-translator').length;
+					chrome.runtime.sendMessage({action: "updateCount", count: removedCount});
+				}
+			}
 		}
 
 		if(execute){

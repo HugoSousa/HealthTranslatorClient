@@ -102,6 +102,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             submitRating(request.data, sendResponse);
             return true;
             break;
+        case 'updateCount':
+            console.log("UPDATE COUNT");
+            updateCount(request.count, sender.tab.id);
+            return true;
+            break;
 
     }
 
@@ -215,6 +220,15 @@ function submitRating(data, sendResponse){
             sendResponse(error);
         }
     });
+}
+
+function updateCount(count, tabId){
+
+    chrome.browserAction.getBadgeText({tabId: tabId}, function(result){
+        var newCount = parseInt(result) - count;
+        setBadgeText(tabId, newCount.toString());
+    });
+    
 }
 
 function addSettingsData(data){
