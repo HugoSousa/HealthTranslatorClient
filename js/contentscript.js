@@ -14,6 +14,11 @@ $(document).ready(function(){
 			execute = true;
 
 		for(var i = 0; i < mutations.length; i++){
+			if(mutations[i].type == 'childList' && mutations[i].target.className == 'br-current-rating' && mutations[i].target.parentNode != null & mutations[i].target.parentNode.parentNode != null && mutations[i].target.parentNode.parentNode.classList.toString().indexOf('health-translator-rating-widget') != -1){
+				//ignore changes in rating modal
+				continue;
+			}
+
 	    	if(mutations[i].addedNodes.length > 0){
 		    	var jq = $(mutations[i].addedNodes);
 			    if(! isFirstProcess && ! jq.is("script")){
@@ -37,10 +42,8 @@ $(document).ready(function(){
 
 		if(execute){
 
-			console.log("Processing the document again");
-
 		    var data = {
-				body: LZString.compressToUTF16($('body').clone().find('script').remove().end().html()),
+				body: LZString.compressToUTF16($('body').clone().find('script').remove().end().find('#health-translator-modal').parent().remove().end().end().find('#health-translator-rating-modal').parent().remove().end().end().html()),
 				language: $("body").attr('health-translator-lang')
 			};
 
@@ -52,9 +55,6 @@ $(document).ready(function(){
 		    chrome.runtime.sendMessage({action: "processDocumentAgain", data: data, isFirstProcess: isFirstProcess}, function(response){
 		    	console.log("RECEIVED PROCESS DOCUMENT AGAIN!");
 		    	console.log(isFirstProcess);
-
-		    	if(response.processed)
-		    		isFirstProcess = false;
 
 		    	replaceDocument(response);
 
@@ -101,11 +101,8 @@ $(document).ready(function(){
 
 			$('body').html(response.body);
 			$('body').attr('health-translator-lang', response.language);
-
-		  	if(! $('#health-translator-modal').length)
-		  		$('body').append(modal); 
-		  	if(! $('#health-translator-rating-modal').length)
-		  		$('body').append(modalRating);
+	  		$('body').append(modal); 
+	  		$('body').append(modalRating);
 		  	
 
 			for(var i = 0; i < scripts.length; i++){
@@ -134,7 +131,15 @@ $(document).ready(function(){
 				
 			}
 
-	  		registerEvents();
+			if(isFirstProcess){
+  				registerEvents();
+  				isFirstProcess = false;
+  			}
+
+			$('#ht-sel1').barrating({theme: 'bootstrap-stars health-translator-rating-widget'});
+			$('#ht-sel2').barrating({theme: 'bootstrap-stars health-translator-rating-widget'});
+			$('#ht-sel3').barrating({theme: 'bootstrap-stars health-translator-rating-widget'});
+			$('#ht-sel4').barrating({theme: 'bootstrap-stars health-translator-rating-widget'});
 
 		  	var t2 = performance.now();
 		  	console.log("Whole processing is finished after " + (t2 - t0) + "ms.");
@@ -150,16 +155,28 @@ $(document).ready(function(){
 		
 		var timer;
 
-		$('#health-translator-modal').on('show.bs.modal hide.bs.modal', function (e) {
+		$('body').on('show.bs.modal hide.bs.modal', '#health-translator-modal', function (e) {
+			console.log("GONNA DISCONNECT!");
 			disconnectObserver();
 			$('#health-translator-footer').hide();
 		});
 
-		$('#health-translator-modal').on('shown.bs.modal hidden.bs.modal', function (e) {
+		$('body').on('shown.bs.modal hidden.bs.modal', '#health-translator-modal', function (e) {
 			observeMutations();
 		});
 
-		$('#health-translator-rating-modal').on('show.bs.modal', function (e) {
+
+
+		$('body').on('hide.bs.modal', '#health-translator-rating-modal', function (e) {
+			console.log("GONNA DISCONNECT!");
+			disconnectObserver();
+		});
+
+		$('body').on('shown.bs.modal', '#health-translator-rating-modal', function (e) {
+			observeMutations();
+		});
+
+		$('body').on('show.bs.modal', '#health-translator-rating-modal', function (e) {
 			disconnectObserver();
 
 			$('#ht-rating-concept-name').text($('#health-translator-concept-name').text());
@@ -173,29 +190,24 @@ $(document).ready(function(){
 			}
 
 			if($('#health-translator-relationships').children().length > 0){
-				$('#ht-def-rels-qual').show();
+				$('#ht-rels-qual').show();
 			}
 		});
 
-		$('#health-translator-rating-modal').on('hidden.bs.modal', function (e) {
+		$('body').on('hidden.bs.modal', '#health-translator-rating-modal', function (e) {
 
-			$('ht-def-qual').hide();
-			$('ht-def-ext-refs-qual').hide();
-			$('ht-def-rels-qual').hide();
-			$('ht-sel1').barrating('clear');
-			$('ht-sel2').barrating('clear');
-			$('ht-sel3').barrating('clear');
-			$('ht-sel4').barrating('clear');
+			$('#ht-def-qual').hide();
+			$('#ht-def-ext-refs-qual').hide();
+			$('#ht-def-rels-qual').hide();
+			$('#ht-sel1').barrating('clear');
+			$('#ht-sel2').barrating('clear');
+			$('#ht-sel3').barrating('clear');
+			$('#ht-sel4').barrating('clear');
 
 			observeMutations();
 		});
 
-		$('#ht-sel1').barrating({theme: 'bootstrap-stars'});
-		$('#ht-sel2').barrating({theme: 'bootstrap-stars'});
-		$('#ht-sel3').barrating({theme: 'bootstrap-stars'});
-		$('#ht-sel4').barrating({theme: 'bootstrap-stars'});
-
-		$('#ht-submit-rating').on('click', function (e) {
+		$('body').on('click', '#ht-submit-rating', function (e) {
 
 			var data = {};
 
@@ -218,7 +230,7 @@ $(document).ready(function(){
 		});
 
 		$('body').tooltip({
-		    delay: {show: 300, hide: 99999},
+		    delay: {show: 300, hide: 350},
 		    animation: false,
 		    placement: 'auto right',
 		    template: '<div class="health-translator tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>',
@@ -259,6 +271,8 @@ $(document).ready(function(){
 			};
 
 			chrome.runtime.sendMessage({action: "details", data: conceptData}, function(response){
+				console.log("RESULT:");
+				console.log(response);
 
 				disconnectObserver();
 
@@ -276,6 +290,7 @@ $(document).ready(function(){
 
 				if(! $.isEmptyObject(rels)){
 					console.log("append relationships");
+					$('#health-translator-relationships').prepend("<div id=\"health-translator-relationships-tree\"><\/div>");
 					$('#health-translator-relationships').prepend("<h4 class=\"text-center\">Relationships</h4>");
 
 					var tree = [];
@@ -313,12 +328,12 @@ $(document).ready(function(){
 						expandIcon: "glyphicon glyphicon-chevron-right"
 					});
 
-					$('#health-translator-relationships').on('mousedown', function(event) {
+					$('#health-translator-relationships-tree').on('mousedown', function(event) {
 						//console.log("CLICK RELATIONSHIPS");
 						disconnectObserver();
 					});
 
-					$('#health-translator-relationships').on('nodeCollapsed nodeExpanded', function(event) {
+					$('#health-translator-relationships-tree').on('nodeCollapsed nodeExpanded', function(event) {
 						//console.log("NODE COLLAPSED OR EXPANDED");
 						//timeout for DOM changes
 						setTimeout(function(){ observeMutations(); }, 5);
@@ -327,7 +342,7 @@ $(document).ready(function(){
 
 				var semantic_types_string = "";
 				for(var i = 0; i < response.semanticTypes.length; i++){
-					semantic_types_string += response.semanticTypes[i];
+					semantic_types_string += response.semanticTypes[i].str;
 					if(i < response.semanticTypes.length - 1)
 						semantic_types_string += " | ";
 				}
@@ -362,8 +377,8 @@ $(document).ready(function(){
 			});
 			
 		});
-
-		$('#health-translator-modal').on('hidden.bs.modal', function () {
+		
+		$('body').on('hidden.bs.modal', '#health-translator-modal', function () {
 
 			disconnectObserver();
 			console.log("Hidden modal");
@@ -398,9 +413,6 @@ $(document).ready(function(){
 	var t0 = performance.now();
 	console.log(isFirstProcess);
 	chrome.runtime.sendMessage({action: "processDocument", data: bodyData, isFirstProcess: isFirstProcess}, function(response){
-    	if(response.processed)
-			isFirstProcess = false;
-
 	  	replaceDocument(response);	
 	});
 
@@ -429,7 +441,6 @@ modal += "      	<\/div>";
 modal += "			<div class=\"text-center\" id=\"health-translator-references\">";
 modal += "			<\/div>";
 modal += "			<div id=\"health-translator-relationships\">";
-modal += "				<div id=\"health-translator-relationships-tree\"><\/div>";
 modal += "			<\/div>";
 modal += "      <\/div>";
 modal += "      <div id=\"health-translator-footer\" class=\"modal-footer text-center\">";
@@ -505,6 +516,26 @@ modalRating += "<\/div>";
 
 //allow tooltip to keep open while hovering it
 var originalLeave = $.fn.tooltip.Constructor.prototype.leave;
+
+$.fn.tooltip.Constructor.prototype.leave = function(obj){
+	var self = obj instanceof this.constructor ? obj : $(obj.currentTarget)[this.type](this.getDelegateOptions()).data('bs.' + this.type)
+	var container, timeout;
+
+	originalLeave.call(this, obj);
+
+	if(obj.currentTarget) {
+	 container = $(obj.currentTarget).siblings('.tooltip')
+	 timeout = self.timeout;
+	 container.one('mouseenter', function(){
+	   //We entered the actual tooltip – call off the dogs
+	   clearTimeout(timeout);
+	   //Let's monitor tooltip content instead
+	   container.one('mouseleave', function(){
+	     $.fn.tooltip.Constructor.prototype.leave.call(self, self);
+	   });
+	 })
+	}
+};
 
 var relationships_dictionary = {
 	inverse_isa: "some_other_string"
