@@ -172,7 +172,13 @@ function getDetails(data, sendResponse){
         contentType: "application/json;charset=UTF-8",
         cache: false,
         success: function(result){
-            console.log("RESULT: \n" + result.result);
+            console.log(data.language);
+            if(settings.get("lang_content") == "detected"){
+                result.language = data.language;
+            }else{
+                result.language = settings.get("lang_content");
+            }
+            
             sendResponse(result);
         },
         error: function(error){
@@ -308,6 +314,7 @@ function injectScriptsAndCSS(tabId){
         { file: "js/libs/lz-string.min.js" },
         { file: "js/libs/bootstrap-treeview.min.js" },
         { file: "js/libs/jquery.barrating.min.js" },
+        { file: "js/i18n.js"},
         { file: "js/contentscript.js"}
     ]);
 

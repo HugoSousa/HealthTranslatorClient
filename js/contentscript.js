@@ -274,12 +274,17 @@ $(document).ready(function(){
 				console.log("RESULT:");
 				console.log(response);
 
+				if(typeof response == 'undefined')
+					return;
+
+				var lang = response.language;
+
 				disconnectObserver();
 
 				$('#health-translator-loading').hide();
 
 				if(response.definition){
-					$('#health-translator-definition').prepend("<h4 class=\"text-center\">Definition</h4>");
+					$('#health-translator-definition').prepend("<h4 class=\"text-center\">"+ i18n.get("definition", lang) + "</h4>");
 					$('#health-translator-definition').append("<p class=\"text-justify\">" + response.definition + "</p>");
 				}else{
 					//$('#health-translator-definition').prepend("<h4 class=\"text-center\">No definition found!</h4>");
@@ -291,7 +296,7 @@ $(document).ready(function(){
 				if(! $.isEmptyObject(rels)){
 					console.log("append relationships");
 					$('#health-translator-relationships').prepend("<div id=\"health-translator-relationships-tree\"><\/div>");
-					$('#health-translator-relationships').prepend("<h4 class=\"text-center\">Relationships</h4>");
+					$('#health-translator-relationships').prepend("<h4 class=\"text-center\">" + i18n.get("relationships", lang) + "</h4>");
 
 					var tree = [];
 					for (var key in rels) {
@@ -354,7 +359,7 @@ $(document).ready(function(){
 					console.log("No refs");
 					//$('#health-translator-references').append("<h4>No external references found.</h4>");
 				}else{
-					$('#health-translator-references').append("<h4>External References</h4>");
+					$('#health-translator-references').append("<h4>" + i18n.get("external_references", lang) + "</h4>");
 					response.references.forEach(function(obj) {
 						//console.log(obj);
 						var url = obj.url;
