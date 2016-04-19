@@ -11,6 +11,26 @@ this.i18n = {
         "en": "Related Concepts",
         "pt": "Conceitos Relacionados"
     },
+    "rate": {
+        "en": "Rate This",
+        "pt": "Avaliar"
+    },
+    "definition_quality": {
+        "en": "Definition Quality",
+        "pt": "Qualidade da Avaliação"
+    },
+    "external_references_quality": {
+        "en": "External References Quality",
+        "pt": "Qualidade das Referências Externas"
+    },
+    "relationships_quality": {
+        "en": "Related Concepts Quality",
+        "pt": "Qualidade dos Conceitos Relacionados"
+    },
+    "general_quality": {
+        "en": "General Quality",
+        "pt": "Qualidade Geral"
+    },
 };
 
 (function () {

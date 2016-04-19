@@ -181,24 +181,40 @@ $(document).ready(function(){
 
 			$('#ht-rating-concept-name').text($('#health-translator-concept-name').text());
 
-			if($('#health-translator-definition').children().length > 0){
-				$('#ht-def-qual').show();
-			}
+			chrome.runtime.sendMessage({action: "getLanguage", data: {language: $("body").attr('health-translator-lang')}}, function(response){
+				var lang = response.language;
+				
+				if($('#health-translator-definition').children().length > 0){
+					$('#ht-def-qual').prepend('<p>' + i18n.get("definition_quality", lang) + '</p>');
+					$('#ht-def-qual').show();
+				}
 
-			if($('#health-translator-references').children().length > 0){
-				$('#ht-ext-refs-qual').show();
-			}
+				if($('#health-translator-references').children().length > 0){
+					$('#ht-ext-refs-qual').prepend('<p>' + i18n.get("external_references_quality", lang) + '</p>');
+					$('#ht-ext-refs-qual').show();
+				}
 
-			if($('#health-translator-relationships').children().length > 0){
-				$('#ht-rels-qual').show();
-			}
+				if($('#health-translator-relationships').children().length > 0){
+					$('#ht-rels-qual').prepend('<p>' + i18n.get("relationships_quality", lang) + '</p>');
+					$('#ht-rels-qual').show();
+				}
+
+				$('#ht-general-qual').prepend('<p>' + i18n.get("general_quality", lang) + '</p>');
+				
+			});
 		});
 
 		$('body').on('hidden.bs.modal', '#health-translator-rating-modal', function (e) {
 
 			$('#ht-def-qual').hide();
-			$('#ht-def-ext-refs-qual').hide();
-			$('#ht-def-rels-qual').hide();
+			$('#ht-ext-refs-qual').hide();
+			$('#ht-rels-qual').hide();
+			
+			$('#ht-def-qual p').remove();
+			$('#ht-ext-refs-qual p').remove();
+			$('#ht-rels-qual p').remove();
+			$('#ht-general-qual p').remove();
+			
 			$('#ht-sel1').barrating('clear');
 			$('#ht-sel2').barrating('clear');
 			$('#ht-sel3').barrating('clear');
@@ -371,7 +387,7 @@ $(document).ready(function(){
 
 				
 				if(! response.hasRating){
-					$('#health-translator-footer').append('<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#health-translator-rating-modal">Rate This</button>');
+					$('#health-translator-footer').append('<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#health-translator-rating-modal">' + i18n.get("rate", lang) + '</button>');
 					$('#health-translator-footer').show();
 				}else{
 					$('#health-translator-footer').hide();
@@ -469,7 +485,6 @@ modalRating += "	      <div class=\"modal-body\">";
 modalRating += "	      	<div>";
 modalRating += "	      		<div class=\"text-center\">";
 modalRating += "	      			<div id=\"ht-def-qual\" style=\"display:none\">";
-modalRating += "			      		<p>Definition Quality<\/p>";
 modalRating += "			      		<select id=\"ht-sel1\">";
 modalRating += "						  <option value=\"1\">1<\/option>";
 modalRating += "						  <option value=\"2\">2<\/option>";
@@ -479,7 +494,6 @@ modalRating += "						  <option value=\"5\">5<\/option>";
 modalRating += "						<\/select>";
 modalRating += "					<\/div>";
 modalRating += "					<div id=\"ht-ext-refs-qual\" style=\"display:none\">";
-modalRating += "		      			<p>External References Quality<\/p>";
 modalRating += "		      			<select id=\"ht-sel2\">";
 modalRating += "						  <option value=\"1\">1<\/option>";
 modalRating += "						  <option value=\"2\">2<\/option>";
@@ -489,7 +503,6 @@ modalRating += "						  <option value=\"5\">5<\/option>";
 modalRating += "						<\/select>";
 modalRating += "		      		<\/div>";
 modalRating += "		      		<div id=\"ht-rels-qual\" style=\"display:none\">";
-modalRating += "		      			<p>Relationships Quality<\/p>";
 modalRating += "			      		<select id=\"ht-sel3\" class=\"pull-right\">";
 modalRating += "						  <option value=\"1\">1<\/option>";
 modalRating += "						  <option value=\"2\">2<\/option>";
@@ -499,7 +512,6 @@ modalRating += "						  <option value=\"5\">5<\/option>";
 modalRating += "						<\/select>";
 modalRating += "		      		<\/div>";
 modalRating += "		      		<div id=\"ht-general-qual\">";
-modalRating += "		      			<p>General Evaluation<\/p>";
 modalRating += "		      			<select id=\"ht-sel4\" class=\"pull-right\">";
 modalRating += "						  <option value=\"1\">1<\/option>";
 modalRating += "						  <option value=\"2\">2<\/option>";

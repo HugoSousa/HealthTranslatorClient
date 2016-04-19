@@ -108,7 +108,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             updateCount(request.count, sender.tab.id);
             return true;
             break;
-
+        case 'getLanguage':
+            console.log("GET LANGUAGE");
+            getLanguage(request.data, sendResponse);
+            return true;
+            break;
     }
 
     return true;
@@ -238,6 +242,18 @@ function updateCount(count, tabId){
         setBadgeText(tabId, newCount.toString());
     });
     
+}
+
+function getLanguage(data, sendResponse){
+    response = {};
+
+    if(settings.get("lang_content") == "detected"){
+        response.language = data.language;
+    }else{
+        response.language = settings.get("lang_content");
+    }
+
+    sendResponse(response);
 }
 
 function addSettingsData(data){
