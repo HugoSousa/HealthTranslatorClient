@@ -45,6 +45,10 @@ this.i18n = {
         "en": "Execution Mode",
         "pt": "Modo de Execução"
     },
+    "definition": {
+        "en": "Definition",
+        "pt": "Definition"
+    },
     "chv": {
         "en": "CHV",
         "pt": "CHV"
@@ -107,6 +111,10 @@ this.i18n = {
     
 
     //FILTERS TAB
+    "definition_filter": {
+        "en": "Recognize concepts that don't have a definition",
+        "pt": "Reconhecer conceitos sem definição"
+    },
     "chv_only_description": {
         "en": "CHV (Consumer Health Vocabulary) is one of the vocabularies used to detect medical concepts in Web documents. This vocabulary maps terms in lay terminology to its corresponding medical concept. Some common terms are only present in CHV and not in other vocabularies and its filtering may be wanted.",
         "pt": "CHV (Consumer Health Vocabulary) é um dos vocabulários usado para detetar conceitos médicos em documentos Web. Este vocabulário mapeia termos em terminologia leiga para o seu conceito médico correspondente. Alguns termos comuns encontram-se apenas presentes no CHV e não noutros vocabulários, podendo a sua filtragem ser desejável."

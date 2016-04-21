@@ -166,9 +166,14 @@ this.manifest = {
         //FILTERS TAB
         {
             "tab": i18n.get("filters"),
-            "group": i18n.get("chv"),
-            "type": "description",
-            "text": i18n.get("chv_only_description")
+            "group": i18n.get("definition"),
+            "type": "radioButtons",
+            "label": i18n.get("definition_filter"),
+            "name": "definition_filter",
+            "options": [
+                ["yes", i18n.get("yes")],
+                ["no", i18n.get("no")]
+            ],
         },
         {
             "tab": i18n.get("filters"),
@@ -180,6 +185,12 @@ this.manifest = {
                 ["yes", i18n.get("yes")],
                 ["no", i18n.get("no")]
             ],
+        },
+        {
+            "tab": i18n.get("filters"),
+            "group": i18n.get("chv"),
+            "type": "description",
+            "text": i18n.get("chv_only_description")
         },
         {
             "tab": i18n.get("filters"),

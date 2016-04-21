@@ -248,7 +248,23 @@ $(document).ready(function(){
 		$('body').tooltip({
 		    delay: {show: 300, hide: 350},
 		    animation: false,
-		    placement: 'auto right',
+		    placement: 'textright',
+		    /*placement: function(tip, element) { //$this is implicit
+		        var position = $(element).inlineOffset();
+		        console.log("POSITION:");
+		        console.log(position.left);
+		        if (position.left > 515) {
+		            return "left";
+		        }
+		        if (position.left < 515) {
+		            return "right";
+		        }
+		        if (position.top < 110){
+		            return "bottom";
+		        }
+		        return "top";
+		        
+		    },*/
 		    template: '<div class="health-translator tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>',
 		    selector: '.medical-term-translate'
 		})
@@ -317,9 +333,9 @@ $(document).ready(function(){
 					var tree = [];
 					for (var key in rels) {
 
-						console.log("RELATIONSHIP: " + key);
-						console.log("TRANSLATION: " + (relationships_dictionary[key] || key));
-						var node = { text: key, nodes: [], tags: [], selectable: false };
+						//console.log("RELATIONSHIP: " + key);
+						//console.log("TRANSLATION: " + i18n.get(key, lang));
+						var node = { text: i18n.get(key, lang), nodes: [], tags: [], selectable: false };
 						tree.push(node);
 
 					    // skip loop if the property is from prototype
@@ -554,7 +570,9 @@ $.fn.tooltip.Constructor.prototype.leave = function(obj){
 	}
 };
 
-var relationships_dictionary = {
-	inverse_isa: "some_other_string"
+jQuery.fn.inlineOffset = function() {
+    var el = $('<i/>').css('display','inline').insertBefore(this[0]);
+    var pos = el.offset();
+    el.remove();
+    return pos;
 };
-

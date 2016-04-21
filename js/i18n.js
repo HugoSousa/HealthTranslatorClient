@@ -31,6 +31,36 @@ this.i18n = {
         "en": "General Quality",
         "pt": "Qualidade Geral"
     },
+
+    //relationships
+    "inverse_isa": {
+        "en": "Belongs to",
+        "pt": "Pertence a"
+    },
+    "same_as": {
+        "en": "Same as",
+        "pt": "Mesmo que"
+    },
+    "due_to": {
+        "en": "Leads to",
+        "pt": "Conduz a"
+    },
+    "cause_of": {
+        "en": "Caused by",
+        "pt": "Causado por"
+    },
+    "isa": {
+        "en": "Composed by",
+        "pt": "Composto por"
+    },
+    "finding_site_of": {
+        "en": "Found in",
+        "pt": "Encontrado em"
+    },
+    "has_causative_agent": {
+        "en": "Caused by",
+        "pt": "Causado por"
+    },
 };
 
 (function () {

@@ -1366,6 +1366,10 @@ if (typeof jQuery === 'undefined') {
 
     if (obj instanceof $.Event) {
       self.inState[obj.type == 'focusin' ? 'focus' : 'hover'] = true
+      var mousePos = { x: -1, y: -1 };
+      mousePos.x = obj.pageX;
+      mousePos.y = obj.pageY;
+      window.mousePos = mousePos;
     }
 
     if (self.tip().hasClass('in') || self.hoverState == 'in') {
@@ -1442,6 +1446,14 @@ if (typeof jQuery === 'undefined') {
         this.options.placement.call(this, $tip[0], this.$element[0]) :
         this.options.placement
 
+      if(placement == 'textleft' && window.mousePos.x < 390){
+        $tip.removeClass(placement);
+        placement = 'textright';
+      }else if(placement == 'textright' && window.mousePos.x > $(window).width() - 390){
+        $tip.removeClass(placement);
+        placement = 'textleft';
+      }
+
       var autoToken = /\s?auto?\s?/i
       var autoPlace = autoToken.test(placement)
       if (autoPlace) placement = placement.replace(autoToken, '') || 'top'
@@ -1475,7 +1487,6 @@ if (typeof jQuery === 'undefined') {
       }
 
       var calculatedOffset = this.getCalculatedOffset(placement, pos, actualWidth, actualHeight)
-
       this.applyPlacement(calculatedOffset, placement)
 
       var complete = function () {
@@ -1532,7 +1543,7 @@ if (typeof jQuery === 'undefined') {
     }
 
     var delta = this.getViewportAdjustedDelta(placement, offset, actualWidth, actualHeight)
-
+    console.log(delta);
     if (delta.left) offset.left += delta.left
     else offset.top += delta.top
 
@@ -1545,6 +1556,9 @@ if (typeof jQuery === 'undefined') {
   }
 
   Tooltip.prototype.replaceArrow = function (delta, dimension, isVertical) {
+    //console.log("REPLACE: ")
+    //console.log(delta)
+
     this.arrow()
       .css(isVertical ? 'left' : 'top', 50 * (1 - delta / dimension) + '%')
       .css(isVertical ? 'top' : 'left', '')
@@ -1598,7 +1612,7 @@ if (typeof jQuery === 'undefined') {
   Tooltip.prototype.hasContent = function () {
     return this.getTitle()
   }
-
+  /*
   Tooltip.prototype.getPosition = function ($element) {
     $element   = $element || this.$element
 
@@ -1621,8 +1635,78 @@ if (typeof jQuery === 'undefined') {
     return placement == 'bottom' ? { top: pos.top + pos.height,   left: pos.left + pos.width / 2 - actualWidth / 2 } :
            placement == 'top'    ? { top: pos.top - actualHeight, left: pos.left + pos.width / 2 - actualWidth / 2 } :
            placement == 'left'   ? { top: pos.top + pos.height / 2 - actualHeight / 2, left: pos.left - actualWidth } :
-        /* placement == 'right' */ { top: pos.top + pos.height / 2 - actualHeight / 2, left: pos.left + pos.width }
+           { top: pos.top + pos.height / 2 - actualHeight / 2, left: pos.left + pos.width }
 
+  }*/
+
+  Tooltip.prototype.getPosition = function($element) {
+    $element = $element || this.$element
+
+    var el = $element[0]
+    var isBody = el.tagName == 'BODY'
+
+    var elRect = el.getBoundingClientRect()
+    if (elRect.width == null) {
+      // width and height are missing in IE8, so compute them manually; see https://github.com/twbs/bootstrap/issues/14093
+      elRect = $.extend({}, elRect, {
+        width: elRect.right - elRect.left,
+        height: elRect.bottom - elRect.top
+      })
+    }
+
+    var rects = el.getClientRects();
+    var firstRect = rects[0];
+    var lastRect = rects[rects.length - 1];
+
+    firstRect = $.extend({}, firstRect, {
+      width: firstRect.right - firstRect.left,
+      height: firstRect.bottom - firstRect.top
+    })
+    lastRect = $.extend({}, lastRect, {
+      width: lastRect.right - lastRect.left,
+      height: lastRect.bottom - lastRect.top
+    })
+
+    var elOffset = isBody ? {
+      top: 0,
+      left: 0
+    } : $element.offset()
+    var elScrollTop = elOffset.top - elRect.top;
+    var elScrollLeft = elOffset.left - elRect.left;
+    firstRect.top += elScrollTop;
+    lastRect.top += elScrollTop;
+    firstRect.left += elScrollLeft;
+    lastRect.left += elScrollLeft;
+
+    firstRect = {
+      firstRect: firstRect
+    };
+    lastRect = {
+      lastRect: lastRect
+    };
+
+    var scroll = {
+      scroll: isBody ? document.documentElement.scrollTop || document.body.scrollTop : $element.scrollTop()
+    }
+    var outerDims = isBody ? {
+      width: $(window).width(),
+      height: $(window).height()
+    } : null
+
+    return $.extend({}, elRect, scroll, outerDims, elOffset, firstRect, lastRect)
+  }
+
+
+  Tooltip.prototype.getCalculatedOffset = function (placement, pos, actualWidth, actualHeight) {
+    var windowWidth = $(window).width();
+
+    return placement == 'bottom' ? { top: pos.top + pos.height,   left: pos.left + pos.width / 2 - actualWidth / 2 } :
+           placement == 'top'    ? { top: pos.top - actualHeight, left: pos.left + pos.width / 2 - actualWidth / 2 } :
+           placement=='left'?{ top: pos.top+pos.height/2-actualHeight/2, left: pos.left-actualWidth }:
+           placement == 'right' ? { top: pos.top + pos.height / 2 - actualHeight / 2, left: pos.left + pos.width } :
+           placement=='textleft' && window.mousePos.x > 390 ? { top: pos.firstRect.top+(pos.firstRect.height/2)-actualHeight/2, left: pos.firstRect.left-actualWidth }:
+           /*placement=='textright'*/ window.mousePos.x < windowWidth - 390 ? { top: pos.lastRect.top+(pos.lastRect.height/2)-actualHeight/2, left: pos.lastRect.right }:
+           /*apply textleft*/         { top: pos.firstRect.top+(pos.firstRect.height/2)-actualHeight/2, left: pos.firstRect.left-actualWidth }
   }
 
   Tooltip.prototype.getViewportAdjustedDelta = function (placement, pos, actualWidth, actualHeight) {

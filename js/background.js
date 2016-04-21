@@ -2,6 +2,7 @@ var currentProcessing = {};
 
 var settings = new Store("settings", {
     "mode": "click",
+    "definition_filter": "yes",
     "chv_only": "yes",
     "sty_filter": "one",
     "lang_en": true,
@@ -259,6 +260,7 @@ function getLanguage(data, sendResponse){
 function addSettingsData(data){
     data.styFilter = settings.get("sty_filter");
     data.recognizeOnlyCHV = (settings.get("chv_only") == "yes") ? true : false;
+    data.recognizeWithoutDefinition = (settings.get("definition_filter") == "yes") ? true : false;
     var supportedLanguages = []
     if(settings.get("lang_en") == true) supportedLanguages.push("en");
     if(settings.get("lang_pt") == true) supportedLanguages.push("pt");

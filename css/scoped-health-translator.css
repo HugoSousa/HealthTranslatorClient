@@ -6003,6 +6003,32 @@ button.health-translator .close {
   margin-left: -3px;
   padding: 0 5px;
 }
+
+.health-translator.tooltip.textright {
+  padding: 0 5px;
+  margin-left: 3px;
+}
+.health-translator.tooltip.textleft {
+  padding: 0 5px;
+  margin-left: -3px;
+}
+
+.health-translator.tooltip.textleft .tooltip-arrow{
+  top: 50%;
+  right: 0;
+  margin-top: -5px;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #000;
+}
+
+.health-translator.tooltip.textright .tooltip-arrow{
+  top: 50%;
+  left: 0;
+  margin-top: -5px;
+  border-width: 5px 5px 5px 0;
+  border-right-color: #000;
+}
+
 .health-translator .tooltip-inner {
   max-width: 200px;
   padding: 3px 8px;
