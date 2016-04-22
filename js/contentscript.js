@@ -249,22 +249,6 @@ $(document).ready(function(){
 		    delay: {show: 300, hide: 350},
 		    animation: false,
 		    placement: 'textright',
-		    /*placement: function(tip, element) { //$this is implicit
-		        var position = $(element).inlineOffset();
-		        console.log("POSITION:");
-		        console.log(position.left);
-		        if (position.left > 515) {
-		            return "left";
-		        }
-		        if (position.left < 515) {
-		            return "right";
-		        }
-		        if (position.top < 110){
-		            return "bottom";
-		        }
-		        return "top";
-		        
-		    },*/
 		    template: '<div class="health-translator tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>',
 		    selector: '.medical-term-translate'
 		})
@@ -347,7 +331,7 @@ $(document).ready(function(){
 					    for (var i = 0; i < relsList.length; i++) {
 
 					    	var relationship = relsList[i];
-					        var childNode = { text: relationship.concept2, selectable: false };
+					        var childNode = { text: relationship.concept1, selectable: false };
 				        	node.nodes.push(childNode);
 					        
 					    }				

@@ -1543,7 +1543,6 @@ if (typeof jQuery === 'undefined') {
     }
 
     var delta = this.getViewportAdjustedDelta(placement, offset, actualWidth, actualHeight)
-    console.log(delta);
     if (delta.left) offset.left += delta.left
     else offset.top += delta.top
 
@@ -1556,9 +1555,6 @@ if (typeof jQuery === 'undefined') {
   }
 
   Tooltip.prototype.replaceArrow = function (delta, dimension, isVertical) {
-    //console.log("REPLACE: ")
-    //console.log(delta)
-
     this.arrow()
       .css(isVertical ? 'left' : 'top', 50 * (1 - delta / dimension) + '%')
       .css(isVertical ? 'top' : 'left', '')

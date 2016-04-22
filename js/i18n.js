@@ -33,34 +33,91 @@ this.i18n = {
     },
 
     //relationships
-    "inverse_isa": {
-        "en": "Belongs to",
-        "pt": "Pertence a"
+    "empty": {
+        "en": "Other relationships",
+        "pt": "Outras relações"
     },
     "same_as": {
         "en": "Same as",
         "pt": "Mesmo que"
     },
     "due_to": {
-        "en": "Leads to",
-        "pt": "Conduz a"
+        "en": "Because of",
+        "pt": "Devido a"
     },
     "cause_of": {
-        "en": "Caused by",
-        "pt": "Causado por"
+        "en": "Cause of",
+        "pt": "Causa de"
+    },
+    "inverse_isa": {
+        "en": "Can also be (more specifically)",
+        "pt": "Também pode ser (mais especificamente)"
     },
     "isa": {
-        "en": "Composed by",
-        "pt": "Composto por"
+        "en": "Can also be (broader)",
+        "pt": "Também pode ser (mais genericamente)"
     },
-    "finding_site_of": {
+    "has_finding_site": {
         "en": "Found in",
         "pt": "Encontrado em"
+    },
+    "finding_site_of": {
+        "en": "Place of",
+        "pt": "Local de"
     },
     "has_causative_agent": {
         "en": "Caused by",
         "pt": "Causado por"
     },
+    "causative_agent_of": {
+        "en": "Causative agent of",
+        "pt": "Agente causativo de"
+    },
+    "has_part": {
+        "en": "Has part",
+        "pt": "Tem parte"
+    },
+    "part_of": {
+        "en": "Part of",
+        "pt": "Parte de"
+    },
+    "has_associated_morphology": {
+        "en": "Associated morphology",
+        "pt": "Morfologia associada"
+    },
+    "associated_morphology_of": {
+        "en": "Associated morphology of",
+        "pt": "Morfologia associada a"
+    },
+    "uses": {
+        "en": "Uses",
+        "pt": "Usa"
+    },
+    "used_by": {
+        "en": "Used by",
+        "pt": "Usado por"
+    },
+    "has_active_ingredient": {
+        "en": "Has active ingredient",
+        "pt": "Tem ingrediente ativo"
+    },
+    "active_ingredient_of": {
+        "en": "Active ingredient of",
+        "pt": "Ingrediente ativo de"
+    },
+    "occurs_before": {
+        "en": "Occurs before",
+        "pt": "Acontece antes de"
+    },
+    "occurs_after": {
+        "en": "Occurs after",
+        "pt": "Acontece depois de"
+    },
+    "occurs_in": {
+        "en": "Occurs in",
+        "pt": "Acontece em"
+    },
+
 };
 
 (function () {

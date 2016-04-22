@@ -1,7 +1,8 @@
 {
   "manifest_version": 2,
   "name": "HealthTranslator",
-  "description": "Recognize medical terms in Web documents and provide definitions, relationships and external references for a better search!",
+  "description": "__MSG_appDescription__",
+  "default_locale": "en",
   "version": "0.1",
   "browser_action": {
     "default_icon": "images/icon.png"
@@ -15,15 +16,6 @@
     "contextMenus",
     "<all_urls>"
   ],
-  /*
-  "content_scripts": [
-    {
-      "matches": ["<all_urls>"],
-      "css": [ "css/contentscript.css", "css/scoped-health-translator.css", "css/bootstrap-treeview.min.css" ],
-      "js": ["js/libs/jquery.min.js", "js/libs/bootstrap.js", "js/libs/lz-string.min.js", "js/libs/bootstrap-treeview.min.js", "js/contentscript.js"]
-    }
-  ],
-  */
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
@@ -35,7 +27,6 @@
     "scripts": ["fancy-settings/source/lib/store.js", "js/libs/jquery.min.js", "js/libs/tuid.js", "js/background.js"],
     "persistent": false
   },
-
   "options_page": "fancy-settings/source/index.html",
   "options_ui": {
     "page": "fancy-settings/source/index.html",

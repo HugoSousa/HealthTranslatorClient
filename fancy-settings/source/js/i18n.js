@@ -5,6 +5,7 @@
 //
 (function () {
     var lang = navigator.language;
+    lang = lang.substr(0,2);
     if (this.i18n === undefined) { this.i18n = {}; }
     this.i18n.get = function (value) {
         if (value === "lang") {

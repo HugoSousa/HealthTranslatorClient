@@ -154,7 +154,7 @@ function processDocument(data, tabId, isFirstProcess, sendResponse){
         error: function(error){
             console.log("ERROR: " + JSON.stringify(error));
 
-            if(! isFirstProcess)
+            if(isFirstProcess)
                 setBadgeText(tabId, "-");
 
             console.log(currentProcessing);
