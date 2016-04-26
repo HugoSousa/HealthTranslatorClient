@@ -289,7 +289,7 @@ function addSettingsData(data){
 function browserActionCallback(tab){
 
     chrome.browserAction.getBadgeText({tabId: tab.id}, function(result){
-        if(result === ""){
+        if(result === "" || result === "-"){
             chrome.browserAction.setBadgeText({
                 text: "...", 
                 tabId: tab.id
@@ -378,13 +378,13 @@ function changeExecutionMode(){
     var mode = settings.get("mode");
     if(mode == 'click'){
         chrome.browserAction.setTitle({
-            title: "Click here to translate this page.\nYou can change the execution mode in the extension's settings."
+            title: chrome.i18n.getMessage("manualProcess")
         });
         chrome.tabs.onUpdated.removeListener(tabUpdatedCallback);
         chrome.browserAction.onClicked.addListener(browserActionCallback);
     }else if(mode == 'always'){
         chrome.browserAction.setTitle({
-            title: "Pages are being automatically translated.\nYou can change the execution mode in the extension's settings."
+            title: chrome.i18n.getMessage("automaticProcess")
         });
         chrome.browserAction.onClicked.removeListener(browserActionCallback);
         chrome.tabs.onUpdated.addListener(tabUpdatedCallback);

@@ -1,5 +1,13 @@
 {
   "appDescription": {
     "message": "Reconhece termos médicos em documentos Web e fornece definições, conceitos relacionados e referências externas para uma pesquisa mais eficiente!"
+  },
+  "automaticProcess":{
+  	"message": "As páginas são automaticamente processadas. Pode mudar o modo de execução nas definições da extensão.",
+  	"description": "Title of the browser action when execution mode is automatic."
+  },
+  "manualProcess":{
+  	"message": "Clique aqui para processar esta página. Pode mudar o modo de execução nas definições da extensão.",
+  	"description": "Title of the browser action when execution mode is manual."
   }
 }
