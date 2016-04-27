@@ -1,0 +1,8 @@
+figcaption {
+	text-align: center !important;
+}
+
+figure{
+	width: 150px !important;
+	display: inline-block !important;
+}
