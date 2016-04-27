@@ -117,7 +117,18 @@ this.i18n = {
         "en": "Occurs in",
         "pt": "Acontece em"
     },
-
+    "uses_device": {
+        "en": "Uses device",
+        "pt": "Usa instrumento"
+    },
+    "device_used_by": {
+        "en": "Device used by",
+        "pt": "Dispositivo usado por"
+    },
+    "has_location": {
+        "en": "Has location",
+        "pt": "Localiza-se em"
+    }
 };
 
 (function () {
