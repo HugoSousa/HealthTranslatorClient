@@ -9,6 +9,8 @@
     <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
     <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
     <link rel="stylesheet" type="text/css" href="stylesheets/custom.css">
+    <link rel="stylesheet" type="text/css" href="stylesheets/ideal-image-slider.css">
+    <link rel="stylesheet" type="text/css" href="stylesheets/ideal-image-slider-theme-default.css">
 
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -60,7 +62,10 @@
 <h3>
 <a id="printscreens" class="anchor" href="#printscreens" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Printscreens</h3>
 
-<p>Some printscreens here</p>
+  <div id="slider">
+    <img src="https://cloud.githubusercontent.com/assets/6798502/14848610/6f1d7c6a-0c66-11e6-8513-03bbd9cdba7c.png" alt="Slide 1">
+    <img data-src="https://cloud.githubusercontent.com/assets/6798502/14848668/b21cf090-0c66-11e6-9f34-7d3c7603e196.png" alt="Slide 2">
+  </div>
 
 <hr>
 
@@ -105,5 +110,14 @@
     </div>
 
   
+    <!-- Include slider JS file -->
+    <script src="javascripts/ideal-image-slider.min.js"></script>
+    <!-- Create your slider -->
+    <script>
+      new IdealImageSlider.Slider({
+        selector: '#slider',
+        height: '16:9'
+      });
+    </script>
   </body>
 </html>
