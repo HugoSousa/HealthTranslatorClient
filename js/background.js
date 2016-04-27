@@ -1,3 +1,5 @@
+var SERVER_URL = 'http://healthtranslator.fe.up.pt:8080';
+
 var currentProcessing = {};
 
 var settings = new Store("settings", {
@@ -129,7 +131,7 @@ function processDocument(data, tabId, isFirstProcess, sendResponse){
     console.log(time);
 
     currentProcessing[tabId] = $.ajax({
-        url: "http://localhost:8080/HealthTranslatorServer/webresources/process",
+        url: SERVER_URL + "/HealthTranslatorServer/webresources/process",
         type: "POST",
         data: JSON.stringify(data),
         dataType: 'json',
@@ -170,7 +172,7 @@ function getDetails(data, sendResponse){
     data.tuid = getTUID();
 
     $.ajax({
-        url: "http://localhost:8080/HealthTranslatorServer/webresources/details",
+        url: SERVER_URL + "/HealthTranslatorServer/webresources/details",
         type: "POST",
         data: JSON.stringify(data),
         dataType: 'json',
@@ -198,7 +200,7 @@ function sendSuggestion(data, tab){
     data.tuid = getTUID();
 
     $.ajax({
-        url: "http://localhost:8080/HealthTranslatorServer/webresources/suggest",
+        url: SERVER_URL + "/HealthTranslatorServer/webresources/suggest",
         type: "POST",
         data: JSON.stringify(data),
         dataType: 'json',
@@ -220,7 +222,7 @@ function submitRating(data, sendResponse){
     data.tuid = getTUID();
 
     $.ajax({
-        url: "http://localhost:8080/HealthTranslatorServer/webresources/rating",
+        url: SERVER_URL + "/HealthTranslatorServer/webresources/rating",
         type: "POST",
         data: JSON.stringify(data),
         dataType: 'json',
