@@ -2,8 +2,6 @@ window.addEvent("domready", function () {
     // Option 1: Use the manifest:
     new FancySettings.initWithManifest(function (settings) {
         
-        //console.log($('sty-1').getParent('div.bundle.checkbox'));
-        //console.log($('sty-1').getParent('div.bundle.checkbox').getSiblings('.setting.bundle.checkbox'));
         var sty_checkboxes = $('sty-1').getParents('div.bundle.checkbox');
         sty_checkboxes = sty_checkboxes.append($('sty-1').getParent('div.bundle.checkbox').getSiblings('.setting.bundle.checkbox'));
         div = new Element('div', {id: 'sty-wrapper-checkboxes'});
@@ -19,7 +17,6 @@ window.addEvent("domready", function () {
         
 
         settings.manifest.ping.addEvent("action", function () {
-            console.log("You clicked ping button!");
             ping(settings);
         });
 
@@ -211,18 +208,20 @@ function setDefaultSemanticTypes(settings){
 
     settings.manifest.sty_5.set(true);
     settings.manifest.sty_7.set(true);
+    settings.manifest.sty_19.set(true);
+    settings.manifest.sty_20.set(true);
     settings.manifest.sty_23.set(true);
     settings.manifest.sty_29.set(true);
     settings.manifest.sty_30.set(true);
-    settings.manifest.sty_34.set(true);
+    settings.manifest.sty_33.set(true);
     settings.manifest.sty_37.set(true);
-    settings.manifest.sty_40.set(true);
     settings.manifest.sty_46.set(true);
     settings.manifest.sty_47.set(true);
     settings.manifest.sty_48.set(true);
     settings.manifest.sty_59.set(true);
     settings.manifest.sty_60.set(true);
     settings.manifest.sty_61.set(true);
+    settings.manifest.sty_109.set(true);
     settings.manifest.sty_116.set(true);
     settings.manifest.sty_121.set(true);
     settings.manifest.sty_125.set(true);
@@ -232,9 +231,11 @@ function setDefaultSemanticTypes(settings){
     settings.manifest.sty_130.set(true);
     settings.manifest.sty_131.set(true);
     settings.manifest.sty_184.set(true);
-    settings.manifest.sty_192.set(true);
+    settings.manifest.sty_190.set(true);
+    settings.manifest.sty_194.set(true);
     settings.manifest.sty_195.set(true);
     settings.manifest.sty_200.set(true);
+    settings.manifest.sty_204.set(true);
 
 
 }
