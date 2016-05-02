@@ -128,6 +128,24 @@ this.i18n = {
     "has_location": {
         "en": "Has location",
         "pt": "Localiza-se em"
+    },
+
+    //toasts
+    "submit_error": {
+        "en": "There was an error submiting your rating. Please try again later.",
+        "pt": "Houve um erro a submeter a sua avaliação. Por favor tente novamente mais tarde."
+    },
+    "suggestion_success": {
+        "en": "The concept was successfully submitted! Thank you for your cooperation.",
+        "pt": "O conceito foi submetido com sucesso. Obrigado pela sua cooperação."
+    },
+    "suggestion_error": {
+        "en": "There was an error submiting your suggestion. Please try again later.",
+        "pt": "Houve um erro a submeter a sua sugestão. Por favor tente novamente mais tarde."
+    },
+    "already_processed": {
+        "en": "This page was already processed.",
+        "pt": "Esta página já foi processada."
     }
 };
 

@@ -30,7 +30,6 @@ div.health-translator.tooltip div.tooltip-inner p.definition{
 	font-size: 14px;
 }
 
-
 #health-translator-modal .modal-body{
 	overflow-y:auto;
 	max-height: calc(100vh - 200px);

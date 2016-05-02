@@ -25,20 +25,27 @@ toastr.options.onHidden = function() {
 
 chrome.runtime.onMessage.addListener(function(request, sender, response) {
 
-	if(typeof observer !== "undefined")
-		disconnectObserver();
+	chrome.runtime.sendMessage({action: "getContentLanguage", data: {language: $("body").attr('data-ht-lang')}}, function(response){
 
-	if(request.type == "suggestion"){	
-		if(request.success){
-			toastr.info("The concept was successfully submitted! Thank you for your cooperation.", title);
-		}else{
-			toastr.warning(request.reason, title);
+		var lang = response.language;
+
+		if(typeof observer !== "undefined")
+			disconnectObserver();
+
+		if(request.type == "suggestion"){	
+			if(request.success){
+				toastr.info(i18n.get("suggestion_success", lang), title);
+			}else{
+				toastr.warning(i18n.get("suggestion_error", lang), title);
+			}
+		}else if(request.type == "process"){
+			toastr.warning(i18n.get("already_processed", lang), title);
 		}
-	}else if(request.type == "process"){
-		toastr.warning(request.alert, title);
-	}
 
-	if(typeof observer !== "undefined")
-		observeMutations();
+		if(typeof observer !== "undefined")
+			observeMutations();
+	});
+
+	
 
 });

@@ -1,6 +1,4 @@
-var SERVER_URL = 'http://healthtranslator.fe.up.pt:8080';
-
-var currentProcessing = {};
+var SERVER_URL = 'http://localhost:8080';
 
 var settings = new Store("settings", {
     "mode": "click",
@@ -86,7 +84,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     switch (request.action) {
         case 'processDocument':
             console.log("PROCESS ON BACKGROUND");
-            processDocument(request.data, sender.tab.id, request.isFirstProcess, sendResponse);
+            processDocument(request.data, sender.tab.id, sendResponse);
             return true;
             break;
         case 'details':
@@ -96,9 +94,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             break;
         case 'processDocumentAgain':
             console.log("PROCESS AGAIN ON BACKGROUND");
-            if(sender.tab.id in currentProcessing)
-                currentProcessing[sender.tab.id].abort();
-            processDocument(request.data, sender.tab.id, request.isFirstProcess, sendResponse);
+            processDocument(request.data, sender.tab.id, sendResponse);
             return true;
             break;
         case 'submitRating':
@@ -106,23 +102,54 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             submitRating(request.data, sendResponse);
             return true;
             break;
-        case 'updateCount':
-            console.log("UPDATE COUNT");
-            updateCount(request.count, sender.tab.id);
+        case 'getContentLanguage':
+            console.log("GET CONTENT LANGUAGE");
+            getLanguage(request.data, sendResponse);
             return true;
             break;
-        case 'getLanguage':
-            console.log("GET LANGUAGE");
-            getLanguage(request.data, sendResponse);
+        case 'detectLanguage':
+            console.log("DETECT LANGUAGE");
+            chrome.tabs.detectLanguage(sender.tab.id, function(language){
+                console.log("LANGUAGE: " + language);
+                response = {};
+                response.language = language;
+                if(isSupportedLanguage(language)){
+                    response.supported = true;
+                }else{
+                    response.supported = false;
+                }
+                sendResponse(response);
+            });
+            return true;
+            break;
+        case 'setBadgeText':
+            setBadgeText(sender.tab.id, request.count.toString());
+            return;
+            break;
+        case 'ping':
+            ping(sender.tab.id, sendResponse);
             return true;
             break;
     }
 
-    return true;
+    return;
 });
 
 
-function processDocument(data, tabId, isFirstProcess, sendResponse){
+function ping(tabId, sendResponse){
+    $.ajax({
+        url: SERVER_URL + "/HealthTranslatorServer/webresources/ping",
+        type: "GET",
+        success: function(result){
+            sendResponse({success: true});
+        },
+        error: function(error){
+            sendResponse({success: false});
+        }
+    });
+}
+
+function processDocument(data, tabId, sendResponse){
 
     addSettingsData(data);
 
@@ -130,7 +157,7 @@ function processDocument(data, tabId, isFirstProcess, sendResponse){
     var time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds() + ":" + dt.getMilliseconds();
     console.log(time);
 
-    currentProcessing[tabId] = $.ajax({
+    $.ajax({
         url: SERVER_URL + "/HealthTranslatorServer/webresources/process",
         type: "POST",
         data: JSON.stringify(data),
@@ -138,28 +165,27 @@ function processDocument(data, tabId, isFirstProcess, sendResponse){
         contentType: "application/json;charset=UTF-16",
         cache: false,
         success: function(result){
+            console.log(result);
 
-            console.log("return result");
-            console.log("result conceptCounter: " + result.conceptCounter);
-            var badgeText;
+            //sendResponse(result);
+            
+            //console.log("return result");
+            //console.log("result conceptCounter: " + result.conceptCounter);
+            //var badgeText;
+            //var count = result.changes.length;
+            //console.log("COUNT: " + count);
 
-            if(result.processed){
-                badgeText = result.conceptCounter.toString();
-            }else{
-                badgeText = "X";
-            }
-            setBadgeText(tabId, badgeText);
-            delete currentProcessing[tabId];
-            console.log(currentProcessing);
+            //updateCount(count, true, tabId);
+
+            //setBadgeText(tabId, badgeText);
             sendResponse(result);
+            
         },
         error: function(error){
             console.log("ERROR: " + JSON.stringify(error));
 
-            if(isFirstProcess)
-                setBadgeText(tabId, "-");
+            //setBadgeText(tabId, "-");
 
-            console.log(currentProcessing);
             sendResponse(error);
         }
     });
@@ -237,15 +263,23 @@ function submitRating(data, sendResponse){
         }
     });
 }
-
+/*
 function updateCount(count, tabId){
 
     chrome.browserAction.getBadgeText({tabId: tabId}, function(result){
-        var newCount = parseInt(result) - count;
+        
+        if(result == "...")
+            result = 0;
+
+        var newCount;
+        if(isIncrement) 
+            newCount = parseInt(result) + count;
+        else
+            newCount = parseInt(result) - count;
         setBadgeText(tabId, newCount.toString());
     });
     
-}
+}*/
 
 function getLanguage(data, sendResponse){
     response = {};
@@ -257,6 +291,15 @@ function getLanguage(data, sendResponse){
     }
 
     sendResponse(response);
+}
+
+function isSupportedLanguage(language){
+    if(language == "pt" && settings.get("lang_en") == true)
+        return true;
+    if(language == "en" && settings.get("lang_en") == true)
+        return true;
+
+    return false;
 }
 
 function addSettingsData(data){

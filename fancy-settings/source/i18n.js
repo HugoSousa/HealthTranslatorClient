@@ -47,7 +47,7 @@ this.i18n = {
     },
     "definition": {
         "en": "Definition",
-        "pt": "Definition"
+        "pt": "Definição"
     },
     "chv": {
         "en": "CHV",

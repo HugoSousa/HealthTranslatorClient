@@ -1,17 +1,129 @@
+var originalLeave = $.fn.tooltip.Constructor.prototype.leave;
+
+//override the tooltip leave, in order to stay open while hovering
+$.fn.tooltip.Constructor.prototype.leave = function(obj){
+	var self = obj instanceof this.constructor ? obj : $(obj.currentTarget)[this.type](this.getDelegateOptions()).data('bs.' + this.type)
+	var container, timeout;
+
+	originalLeave.call(this, obj);
+
+	if(obj.currentTarget) {
+	 container = self.$tip;
+	 //container = $(obj.currentTarget).siblings('.tooltip')
+	 timeout = self.timeout;
+	 container.one('mouseenter', function(){
+	   //We entered the actual tooltip – call off the dogs
+	   clearTimeout(timeout);
+	   //Let's monitor tooltip content instead
+	   container.one('mouseleave', function(){
+	     $.fn.tooltip.Constructor.prototype.leave.call(self, self);
+	   });
+	 })
+	}
+};
+
+var modal="";
+modal += "<!-- Modals -->";
+modal += "<div class=\"health-translator\">";
+modal += "<div class=\"modal fade\" id=\"health-translator-modal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"health-translator-modal-label\">";
+modal += "  <div class=\"modal-dialog\" role=\"document\">";
+modal += "    <div class=\"modal-content\">";
+modal += "      <div class=\"modal-header\">";
+modal += "        <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;<\/span><\/button>";
+modal += "        <div class=\"modal-title\" id=\"health-translator-modal-label\">";
+modal += "			<h4 id=\"health-translator-concept-name\"></h4>";		
+modal += "			<h6 id=\"health-translator-semantic-type\"></h6>";	
+modal += "        <\/div>";
+modal += "      <\/div>";
+modal += "      <div class=\"modal-body\">";
+modal += "			<div id=\"health-translator-loading\" class=\"text-center\">";
+modal += "				<img src=\"" + chrome.extension.getURL("images/loading.gif") + "\">";
+modal += "      	<\/div>";
+modal += "			<div id=\"health-translator-definition\">";
+modal += "      	<\/div>";
+modal += "			<div class=\"text-center\" id=\"health-translator-references\">";
+modal += "			<\/div>";
+modal += "			<div id=\"health-translator-relationships\">";
+modal += "			<\/div>";
+modal += "      <\/div>";
+modal += "      <div id=\"health-translator-footer\" class=\"modal-footer text-center\">";
+//modal += "        <button type=\"button\" class=\"btn btn-primary\">Rate This<\/button>";
+modal += "      <\/div>";
+modal += "    <\/div>";
+modal += "  <\/div>";
+modal += "<\/div>";
+modal += "<\/div>";
+
+var modalRating="";
+modalRating += "<div class=\"health-translator\">";
+modalRating += "	<div class=\"modal fade\" id=\"health-translator-rating-modal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"health-translator-rating-modal-label\" data-backdrop=\"static\" data-keyboard=\"false\">";
+modalRating += "	  <div class=\"modal-dialog\" role=\"document\">";
+modalRating += "	    <div class=\"modal-content\">";
+modalRating += "	      <div class=\"modal-header\">";
+modalRating += "	        <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;<\/span><\/button>";
+modalRating += "	        <h4 id=\"ht-rating-concept-name\"><\/h4>";
+modalRating += "	      <\/div>";
+modalRating += "	      <div class=\"modal-body\">";
+modalRating += "	      	<div>";
+modalRating += "	      		<div class=\"text-center\">";
+modalRating += "	      			<div id=\"ht-def-qual\" style=\"display:none\">";
+modalRating += "			      		<select id=\"ht-sel1\">";
+modalRating += "						  <option value=\"1\">1<\/option>";
+modalRating += "						  <option value=\"2\">2<\/option>";
+modalRating += "						  <option value=\"3\">3<\/option>";
+modalRating += "						  <option value=\"4\">4<\/option>";
+modalRating += "						  <option value=\"5\">5<\/option>";
+modalRating += "						<\/select>";
+modalRating += "					<\/div>";
+modalRating += "					<div id=\"ht-ext-refs-qual\" style=\"display:none\">";
+modalRating += "		      			<select id=\"ht-sel2\">";
+modalRating += "						  <option value=\"1\">1<\/option>";
+modalRating += "						  <option value=\"2\">2<\/option>";
+modalRating += "						  <option value=\"3\">3<\/option>";
+modalRating += "						  <option value=\"4\">4<\/option>";
+modalRating += "						  <option value=\"5\">5<\/option>";
+modalRating += "						<\/select>";
+modalRating += "		      		<\/div>";
+modalRating += "		      		<div id=\"ht-rels-qual\" style=\"display:none\">";
+modalRating += "			      		<select id=\"ht-sel3\" class=\"pull-right\">";
+modalRating += "						  <option value=\"1\">1<\/option>";
+modalRating += "						  <option value=\"2\">2<\/option>";
+modalRating += "						  <option value=\"3\">3<\/option>";
+modalRating += "						  <option value=\"4\">4<\/option>";
+modalRating += "						  <option value=\"5\">5<\/option>";
+modalRating += "						<\/select>";
+modalRating += "		      		<\/div>";
+modalRating += "		      		<div id=\"ht-general-qual\">";
+modalRating += "		      			<select id=\"ht-sel4\" class=\"pull-right\">";
+modalRating += "						  <option value=\"1\">1<\/option>";
+modalRating += "						  <option value=\"2\">2<\/option>";
+modalRating += "						  <option value=\"3\">3<\/option>";
+modalRating += "						  <option value=\"4\">4<\/option>";
+modalRating += "						  <option value=\"5\">5<\/option>";
+modalRating += "						<\/select>";
+modalRating += "		      		<\/div>";
+modalRating += "      			<\/div>";
+modalRating += "	      	<\/div>";
+modalRating += "	      <div class=\"modal-footer\" style=\"text-align:center\">";
+modalRating += "	        <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Cancel<\/button>";
+modalRating += "	        <button type=\"button\" class=\"btn btn-primary\" id=\"ht-submit-rating\">Submit<\/button>";
+modalRating += "	      <\/div>";
+modalRating += "	    <\/div>";
+modalRating += "	  <\/div>";
+modalRating += "	<\/div>";
+modalRating += "<\/div>";
+
 $(document).ready(function(){ 
 
 	var isFirstProcess = true;
+	var count = 0;
+	var toProcess = [];
 	MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
 	
 	observer = new MutationObserver(function(mutations, observer) {
 
 	    console.log("Change in the DOM");
 	    console.log(mutations);
-
-	    var execute = false;
-
-	    if(isFirstProcess)
-			execute = true;
 
 		for(var i = 0; i < mutations.length; i++){
 			if(mutations[i].type == 'childList' && mutations[i].target.className == 'br-current-rating' && mutations[i].target.parentNode != null & mutations[i].target.parentNode.parentNode != null && mutations[i].target.parentNode.parentNode.classList.toString().indexOf('health-translator-rating-widget') != -1){
@@ -20,47 +132,30 @@ $(document).ready(function(){
 			}
 
 	    	if(mutations[i].addedNodes.length > 0){
-		    	var jq = $(mutations[i].addedNodes);
-			    if(! isFirstProcess && ! jq.is("script")){
+		    	var $mut = $(mutations[i].addedNodes);
+			    if(! $mut.is("script")){
 			    	execute = true;
-			    	break;
 				}
+
+				$mut.each(function() {
+					console.log("AAAA");
+					console.log(this);
+					processText(this);	
+				});
 			}
-			if(mutations[i].type == "characterData"){
-				execute = true;
-				break;
-			}
+
 			if(mutations[i].removedNodes.length > 0){
 				var removedConcepts = 0;
-				for(var j = 0; j < mutations[i].removedNodes.length; j++){
-					removedHTML = $.parseHTML(mutations[i].removedNodes[j].outerHTML);
-					removedCount = $(removedHTML).find('x-health-translator.health-translator').length;
-					chrome.runtime.sendMessage({action: "updateCount", count: removedCount});
+				var $mut = $(mutations[i].removedNodes);
+			    if(! $mut.is("script")){
+					$mut.each(function(){
+						removedHTML = $.parseHTML(this.outerHTML);
+						removedCount = $(removedHTML).find('x-health-translator.health-translator').length;
+						count -= removedCount;
+						chrome.runtime.sendMessage({action: "setBadgeText", count: count});
+					});
 				}
 			}
-		}
-
-		if(execute){
-
-		    var data = {
-				body: LZString.compressToUTF16($('body').clone().find('script').remove().end().find('#health-translator-modal').parent().remove().end().end().find('#health-translator-rating-modal').parent().remove().end().end().html()),
-				language: $("body").attr('health-translator-lang')
-			};
-
-			console.log("DATA REPLACE AGAIN");
-			//console.log($('body').clone().find('script').remove().end().html());
-
-			var tx = performance.now();
-
-		    chrome.runtime.sendMessage({action: "processDocumentAgain", data: data, isFirstProcess: isFirstProcess}, function(response){
-		    	console.log("RECEIVED PROCESS DOCUMENT AGAIN!");
-		    	console.log(isFirstProcess);
-
-		    	replaceDocument(response);
-
-		    	tz = performance.now();
-		    	console.log("Processed document again in " + (tz - tx) + "ms.");
-		    });
 		}
 	});
 
@@ -78,7 +173,7 @@ $(document).ready(function(){
 		//console.log("Disconnected Observer");
 	}
 
-
+	/*
 	function replaceDocument(response){
 
 		console.log("Response is returned after " + (t1 - t0) + "ms.");
@@ -149,6 +244,7 @@ $(document).ready(function(){
 
 	  	}
 	}
+	*/
 
 	function registerEvents(){
 		console.log("REGISTER EVENTS");
@@ -166,7 +262,6 @@ $(document).ready(function(){
 		});
 
 
-
 		$('body').on('hide.bs.modal', '#health-translator-rating-modal', function (e) {
 			console.log("GONNA DISCONNECT!");
 			disconnectObserver();
@@ -176,12 +271,13 @@ $(document).ready(function(){
 			observeMutations();
 		});
 
+
 		$('body').on('show.bs.modal', '#health-translator-rating-modal', function (e) {
 			disconnectObserver();
 
 			$('#ht-rating-concept-name').text($('#health-translator-concept-name').text());
 
-			chrome.runtime.sendMessage({action: "getLanguage", data: {language: $("body").attr('health-translator-lang')}}, function(response){
+			chrome.runtime.sendMessage({action: "getContentLanguage", data: {language: $("body").attr('data-ht-lang')}}, function(response){
 				var lang = response.language;
 				
 				if($('#health-translator-definition').children().length > 0){
@@ -231,7 +327,7 @@ $(document).ready(function(){
 			($('#ht-refs-qual').css('display') == 'none') ? data.externalReferences = -1 : data.externalReferences = parseInt($('#ht-sel2').val());
 			($('#ht-rels-qual').css('display') == 'none') ? data.relationships = -1 : data.relationships = parseInt($('#ht-sel3').val());
 			data.general = parseInt($('#ht-sel4').val());
-			data.language = $("body").attr('health-translator-lang');
+			data.language = $("body").attr('data-ht-lang');
 			data.cui = $('#health-translator-modal').attr('data-cui');
 
 			
@@ -239,6 +335,11 @@ $(document).ready(function(){
 				if(response.success){
 					$('#health-translator-rating-modal').modal('toggle');
 					$('#health-translator-footer').empty();
+				}else{
+					chrome.runtime.sendMessage({action: "getContentLanguage", data: {language: $("body").attr('data-ht-lang')}}, function(response){
+						var lang = response.language;
+						toastr.warning(i18n.get("submit_error", lang), "HealthTranslator");
+					});
 				}
 		    });
 
@@ -250,7 +351,8 @@ $(document).ready(function(){
 		    animation: false,
 		    placement: 'textright',
 		    template: '<div class="health-translator tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>',
-		    selector: '.medical-term-translate'
+		    selector: '.medical-term-translate',
+		    container: 'body'
 		})
 
 	    $('body').on('hidden.bs.tooltip shown.bs.tooltip', function () {
@@ -272,7 +374,7 @@ $(document).ready(function(){
 			var conceptSpan = $('.medical-term-translate[aria-describedby="' + tooltip_id + '"]');
 			var term = conceptSpan.attr('data-term');
 			var cui = conceptSpan.attr('data-cui');
-			var lang = $("body").attr('health-translator-lang')
+			var lang = $("body").attr('data-ht-lang')
 			tooltip.tooltip("hide");
 
 			disconnectObserver();
@@ -416,7 +518,7 @@ $(document).ready(function(){
 		});
 	};
 	
-
+	/*
 	observeMutations();
 
 	var bodyData = {
@@ -436,127 +538,163 @@ $(document).ready(function(){
 	chrome.runtime.sendMessage({action: "processDocument", data: bodyData, isFirstProcess: isFirstProcess}, function(response){
 	  	replaceDocument(response);	
 	});
+	*/
+
+	var t0 = performance.now();
 
 
-});
+	chrome.runtime.sendMessage({action: "detectLanguage"}, function(response){
+		console.log(response);
+		//check if it's a language to process
+		if(response.supported){
+			$('body').attr('data-ht-lang', response.language);
+			
+			processText('body');
+			appendModals();
+			setRatingWidget();
+			registerEvents();
+			
+		}else{
+			console.log("HEALTHTRANSLATOR: Language not supported - " + response.language);
+		}
+	});
 
-var modal="";
-modal += "<!-- Modal -->";
-modal += "<div class=\"health-translator\">";
-modal += "<div class=\"modal fade\" id=\"health-translator-modal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"health-translator-modal-label\">";
-modal += "  <div class=\"modal-dialog\" role=\"document\">";
-modal += "    <div class=\"modal-content\">";
-modal += "      <div class=\"modal-header\">";
-modal += "        <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;<\/span><\/button>";
-modal += "        <div class=\"modal-title\" id=\"health-translator-modal-label\">";
-modal += "			<h4 id=\"health-translator-concept-name\"></h4>";		
-modal += "			<h6 id=\"health-translator-semantic-type\"></h6>";	
-modal += "        <\/div>";
-modal += "      <\/div>";
-modal += "      <div class=\"modal-body\">";
-modal += "			<div id=\"health-translator-loading\" class=\"text-center\">";
-modal += "				<img src=\"" + chrome.extension.getURL("images/loading.gif") + "\">";
-modal += "      	<\/div>";
-modal += "			<div id=\"health-translator-definition\">";
-modal += "      	<\/div>";
-modal += "			<div class=\"text-center\" id=\"health-translator-references\">";
-modal += "			<\/div>";
-modal += "			<div id=\"health-translator-relationships\">";
-modal += "			<\/div>";
-modal += "      <\/div>";
-modal += "      <div id=\"health-translator-footer\" class=\"modal-footer text-center\">";
-//modal += "        <button type=\"button\" class=\"btn btn-primary\">Rate This<\/button>";
-modal += "      <\/div>";
-modal += "    <\/div>";
-modal += "  <\/div>";
-modal += "<\/div>";
-modal += "<\/div>";
 
-var modalRating="";
-modalRating += "<div class=\"health-translator\">";
-modalRating += "	<div class=\"modal fade\" id=\"health-translator-rating-modal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"health-translator-rating-modal-label\" data-backdrop=\"static\" data-keyboard=\"false\">";
-modalRating += "	  <div class=\"modal-dialog\" role=\"document\">";
-modalRating += "	    <div class=\"modal-content\">";
-modalRating += "	      <div class=\"modal-header\">";
-modalRating += "	        <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;<\/span><\/button>";
-modalRating += "	        <h4 id=\"ht-rating-concept-name\"><\/h4>";
-modalRating += "	      <\/div>";
-modalRating += "	      <div class=\"modal-body\">";
-modalRating += "	      	<div>";
-modalRating += "	      		<div class=\"text-center\">";
-modalRating += "	      			<div id=\"ht-def-qual\" style=\"display:none\">";
-modalRating += "			      		<select id=\"ht-sel1\">";
-modalRating += "						  <option value=\"1\">1<\/option>";
-modalRating += "						  <option value=\"2\">2<\/option>";
-modalRating += "						  <option value=\"3\">3<\/option>";
-modalRating += "						  <option value=\"4\">4<\/option>";
-modalRating += "						  <option value=\"5\">5<\/option>";
-modalRating += "						<\/select>";
-modalRating += "					<\/div>";
-modalRating += "					<div id=\"ht-ext-refs-qual\" style=\"display:none\">";
-modalRating += "		      			<select id=\"ht-sel2\">";
-modalRating += "						  <option value=\"1\">1<\/option>";
-modalRating += "						  <option value=\"2\">2<\/option>";
-modalRating += "						  <option value=\"3\">3<\/option>";
-modalRating += "						  <option value=\"4\">4<\/option>";
-modalRating += "						  <option value=\"5\">5<\/option>";
-modalRating += "						<\/select>";
-modalRating += "		      		<\/div>";
-modalRating += "		      		<div id=\"ht-rels-qual\" style=\"display:none\">";
-modalRating += "			      		<select id=\"ht-sel3\" class=\"pull-right\">";
-modalRating += "						  <option value=\"1\">1<\/option>";
-modalRating += "						  <option value=\"2\">2<\/option>";
-modalRating += "						  <option value=\"3\">3<\/option>";
-modalRating += "						  <option value=\"4\">4<\/option>";
-modalRating += "						  <option value=\"5\">5<\/option>";
-modalRating += "						<\/select>";
-modalRating += "		      		<\/div>";
-modalRating += "		      		<div id=\"ht-general-qual\">";
-modalRating += "		      			<select id=\"ht-sel4\" class=\"pull-right\">";
-modalRating += "						  <option value=\"1\">1<\/option>";
-modalRating += "						  <option value=\"2\">2<\/option>";
-modalRating += "						  <option value=\"3\">3<\/option>";
-modalRating += "						  <option value=\"4\">4<\/option>";
-modalRating += "						  <option value=\"5\">5<\/option>";
-modalRating += "						<\/select>";
-modalRating += "		      		<\/div>";
-modalRating += "      			<\/div>";
-modalRating += "	      	<\/div>";
-modalRating += "	      <div class=\"modal-footer\" style=\"text-align:center\">";
-modalRating += "	        <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Cancel<\/button>";
-modalRating += "	        <button type=\"button\" class=\"btn btn-primary\" id=\"ht-submit-rating\">Submit<\/button>";
-modalRating += "	      <\/div>";
-modalRating += "	    <\/div>";
-modalRating += "	  <\/div>";
-modalRating += "	<\/div>";
-modalRating += "<\/div>";
+	function processText(element){
 
-//allow tooltip to keep open while hovering it
-var originalLeave = $.fn.tooltip.Constructor.prototype.leave;
-
-$.fn.tooltip.Constructor.prototype.leave = function(obj){
-	var self = obj instanceof this.constructor ? obj : $(obj.currentTarget)[this.type](this.getDelegateOptions()).data('bs.' + this.type)
-	var container, timeout;
-
-	originalLeave.call(this, obj);
-
-	if(obj.currentTarget) {
-	 container = $(obj.currentTarget).siblings('.tooltip')
-	 timeout = self.timeout;
-	 container.one('mouseenter', function(){
-	   //We entered the actual tooltip – call off the dogs
-	   clearTimeout(timeout);
-	   //Let's monitor tooltip content instead
-	   container.one('mouseleave', function(){
-	     $.fn.tooltip.Constructor.prototype.leave.call(self, self);
-	   });
-	 })
+		if(element.nodeType == 3){
+			checkChangesNode(element);
+		}
+		else{
+			chrome.runtime.sendMessage({action: "ping"}, function(response){
+				if(response.success == true){
+					$textNodes = getTextNodesIn(element);
+					
+					$textNodes.each(function() {
+						checkChangesNode(this);	
+					});
+				}else{
+					chrome.runtime.sendMessage({action: "setBadgeText", count: "-"});
+				}
+			});
+		}
 	}
-};
 
-jQuery.fn.inlineOffset = function() {
-    var el = $('<i/>').css('display','inline').insertBefore(this[0]);
-    var pos = el.offset();
-    el.remove();
-    return pos;
-};
+	function appendModals(){
+		$('body').append(modal); 
+		$('body').append(modalRating);
+	}
+
+	function setRatingWidget(){
+		$('#ht-sel1').barrating({theme: 'bootstrap-stars health-translator-rating-widget'});
+		$('#ht-sel2').barrating({theme: 'bootstrap-stars health-translator-rating-widget'});
+		$('#ht-sel3').barrating({theme: 'bootstrap-stars health-translator-rating-widget'});
+		$('#ht-sel4').barrating({theme: 'bootstrap-stars health-translator-rating-widget'});
+	}
+
+	function isProcessFinished(){
+		if(toProcess.length == 0){
+			//get the finished time
+			var t1 = performance.now();
+			console.log("Initial processing: " + (t1 - t0) + " ms.")
+			return true;
+		}
+		return false;
+	}
+
+	function getTextNodesIn(el) {
+	    return $(el).find(":not(iframe):not(script):not(head):not(style)").addBack().contents().filter(function() {
+	        return this.nodeType == 3;
+	    });
+	};
+
+	function checkChangesNode(node){
+		if(/\S/.test(node.nodeValue) && node.nodeValue.length > 3){
+
+			var bodyData = {
+				body: node.nodeValue,
+				language: $('body').attr('data-ht-lang')
+			};
+			
+			toProcess.push(node);
+			chrome.runtime.sendMessage({action: "processDocument", data: bodyData}, function(response){
+
+			  	var split = []
+
+			  	//console.log(response);
+			  	if(response.hasOwnProperty("status") && response.status == 0){
+			  		console.log("HEALTHTRANSLATOR: Error processing a text node.");
+			  		return;
+			  	}
+			  	
+
+			  	var changes = response.changes;
+
+			  	if(response.changes.length > 0 || isFirstProcess){
+			  		count += response.changes.length;
+			  		chrome.runtime.sendMessage({action: "setBadgeText", count: count});
+
+			  		if(isFirstProcess){
+			  			isFirstProcess = false;
+			  		}
+			  	}
+			  	
+
+
+			  	if(changes.length > 0){
+			  		split.push(htmlEscape(node.nodeValue.substring(0, changes[0].start)));
+			  	}
+
+			  	for(var i = 0; i < changes.length; i++){
+			  		//console.log("CHANGEEEE");
+			  		var outerElement = document.createElement('x-health-translator');
+				  	outerElement.classList.add('health-translator');
+			  		outerElement.innerHTML = changes[i].tooltip;
+
+			  		split.push(outerElement.outerHTML);
+
+			  		if(i + 1 < changes.length)
+			  			split.push(node.nodeValue.substring(changes[i].end, changes[i+1].start));
+
+			  	}
+
+			  	if(changes.length > 0){
+			  		//console.log(node.nodeValue);
+			  		split.push(htmlEscape(node.nodeValue.substring(changes[changes.length - 1].end)));
+			  	}
+
+			  	changedNode = split.join("");
+			  	//console.log(changedNode);
+
+			  	if(split.length > 0){
+			  		//console.log(split);
+			  		disconnectObserver();
+				  	var replacementNode = document.createElement('x-health-translator');
+					replacementNode.innerHTML = changedNode;
+					node.parentNode.insertBefore(replacementNode, node);
+					node.parentNode.removeChild(node);
+					observeMutations();
+				}
+
+				var index = toProcess.indexOf(node);
+				if (index > -1) {
+				    toProcess.splice(index, 1);
+				}
+
+				if(isProcessFinished()){
+					observeMutations();
+				}
+		  	});
+		}
+	}
+
+	function htmlEscape(str) {
+	    return String(str)
+	        .replace(/&/g, '&amp;')
+	        .replace(/"/g, '&quot;')
+	        .replace(/'/g, '&#39;')
+	        .replace(/</g, '&lt;')
+	        .replace(/>/g, '&gt;')
+	        .replace(/\//g, '&#x2F;');
+	}
+});
