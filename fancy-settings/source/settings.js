@@ -11,8 +11,8 @@ window.addEvent("domready", function () {
         div = new Element('div', {id: 'sty-wrapper-buttons'});
         sty_buttons.each(function(e){ div.wraps(e) });
         
-        
-        var check = $$('div.tab-content>h2:contains("Language")');
+        var lang = i18n.get("language");
+        var check = $$('div.tab-content>h2:contains(' + lang + ')');
         check.getParent().getElements('p.element.description').each(function(el){ el.addClass("bigger-description"); });
         
 

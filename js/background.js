@@ -1,4 +1,4 @@
-var SERVER_URL = 'http://localhost:8080';
+var SERVER_URL = 'http://healthtranslator.fe.up.pt:8080';
 
 var settings = new Store("settings", {
     "mode": "click",
@@ -96,11 +96,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             getDetails(request.data, sendResponse);
             return true;
             break;
-        case 'processDocumentAgain':
-            console.log("PROCESS AGAIN ON BACKGROUND");
-            processDocument(request.data, sender.tab.id, sendResponse);
-            return true;
-            break;
         case 'submitRating':
             console.log("SUBMIT RATING");
             submitRating(request.data, sendResponse);
@@ -108,7 +103,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             break;
         case 'getContentLanguage':
             console.log("GET CONTENT LANGUAGE");
-            getLanguage(request.data, sendResponse);
+            getContentLanguage(request.data, sendResponse);
             return true;
             break;
         case 'detectLanguage':
@@ -267,25 +262,8 @@ function submitRating(data, sendResponse){
         }
     });
 }
-/*
-function updateCount(count, tabId){
 
-    chrome.browserAction.getBadgeText({tabId: tabId}, function(result){
-        
-        if(result == "...")
-            result = 0;
-
-        var newCount;
-        if(isIncrement) 
-            newCount = parseInt(result) + count;
-        else
-            newCount = parseInt(result) - count;
-        setBadgeText(tabId, newCount.toString());
-    });
-    
-}*/
-
-function getLanguage(data, sendResponse){
+function getContentLanguage(data, sendResponse){
     response = {};
 
     if(settings.get("lang_content") == "detected"){

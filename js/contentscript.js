@@ -173,79 +173,6 @@ $(document).ready(function(){
 		//console.log("Disconnected Observer");
 	}
 
-	/*
-	function replaceDocument(response){
-
-		console.log("Response is returned after " + (t1 - t0) + "ms.");
-
-		if(response.processed == false){
-			console.log(response.exception);
-		}
-
-		if(typeof response.conceptCounter == "undefined"){
-			console.log("An error occurred");
-		}else if(response.conceptCounter > 0){
-
-			var t1 = performance.now();
-
-			disconnectObserver();
-
-			var scripts = Array.prototype.slice.call(document.scripts);
-
-			//var head_scripts = Array.prototype.slice.call(document.getElementsByTagName('head')[0].scripts);
-
-			$('body').html(response.body);
-			$('body').attr('health-translator-lang', response.language);
-	  		$('body').append(modal); 
-	  		$('body').append(modalRating);
-		  	
-
-			for(var i = 0; i < scripts.length; i++){
-				
-				if( scripts[i].parentNode == null || (scripts[i].parentNode != null && scripts[i].parentNode.localName != 'head')){
-					var script = document.createElement('script');
-					script.innerHTML = scripts[i].innerHTML;
-					if(scripts[i].src){
-						script.src = scripts[i].src;
-
-					}
-				}
-
-				//disconnectObserver();
-				if(scripts[i].parentNode != null && scripts[i].parentNode.localName == 'head'){
-					var script = document.createElement('script');
-					script.innerHTML = scripts[i].innerHTML;
-					if(scripts[i].src){
-						script.src = scripts[i].src;
-					}
-
-					//remove the old script and add the new one
-					document.getElementsByTagName('head')[0].removeChild(scripts[i]);
-					document.getElementsByTagName('head')[0].appendChild(script);
-				}
-				
-			}
-
-			if(isFirstProcess){
-  				registerEvents();
-  				isFirstProcess = false;
-  			}
-
-			$('#ht-sel1').barrating({theme: 'bootstrap-stars health-translator-rating-widget'});
-			$('#ht-sel2').barrating({theme: 'bootstrap-stars health-translator-rating-widget'});
-			$('#ht-sel3').barrating({theme: 'bootstrap-stars health-translator-rating-widget'});
-			$('#ht-sel4').barrating({theme: 'bootstrap-stars health-translator-rating-widget'});
-
-		  	var t2 = performance.now();
-		  	console.log("Whole processing is finished after " + (t2 - t0) + "ms.");
-
-		  	//the scripts in head make invisible DOM changes later
-		  	setTimeout(function(){observeMutations();}, 50);
-
-	  	}
-	}
-	*/
-
 	function registerEvents(){
 		console.log("REGISTER EVENTS");
 		
@@ -517,28 +444,6 @@ $(document).ready(function(){
 			observeMutations();
 		});
 	};
-	
-	/*
-	observeMutations();
-
-	var bodyData = {
-		//remove scripts in order to remove unnecessary chunks of text in request
-		//scripts are manually added in the response
-		body: LZString.compressToUTF16($('body').clone().find('script').remove().end().html())
-	};
-	
-
-	//console.log("BODY: " + getDocTypeAsString() + document.documentElement.outerHTML );
-	console.log("Start Processing.");
-	//console.log("BODY: " + bodyData.body);
-	//console.log("DECOMPRESSED BODY: " + LZString.decompress(bodyData.body))
-
-	var t0 = performance.now();
-	console.log(isFirstProcess);
-	chrome.runtime.sendMessage({action: "processDocument", data: bodyData, isFirstProcess: isFirstProcess}, function(response){
-	  	replaceDocument(response);	
-	});
-	*/
 
 	var t0 = performance.now();
 
