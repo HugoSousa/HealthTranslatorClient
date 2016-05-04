@@ -23,7 +23,7 @@ window.addEvent("domready", function () {
         settings.manifest.reset_settings.addEvent("action", function(){
             settings.manifest.mode.set("click");
             settings.manifest.chv_only.set("yes");
-            settings.manifest.sty_filter.set("sty_one");
+            settings.manifest.sty_filter.set("sty_all");
             settings.manifest.lang_en.set(true);
             settings.manifest.lang_pt.set(true);
             settings.manifest.lang_content.set("detected");

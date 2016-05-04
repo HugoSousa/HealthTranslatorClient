@@ -1,10 +1,13 @@
-var SERVER_URL = 'http://healthtranslator.fe.up.pt:8080';
+//var SERVER_URL = 'http://healthtranslator.fe.up.pt:8080';
+var SERVER_URL = 'http://localhost:8080';
+
+console.log("EXECUTED");
 
 var settings = new Store("settings", {
     "mode": "click",
     "definition_filter": "yes",
     "chv_only": "yes",
-    "sty_filter": "one",
+    "sty_filter": "all",
     "lang_en": true,
     "lang_pt": true,
     "lang_content": "detected",
@@ -347,10 +350,10 @@ function injectScriptsAndCSS(tabId){
     console.log("EXECUTED SCRIPTS");
 
     insertCSS(tabId, [
-        { file: "css/contentscript.css" }, 
         { file: "css/scoped-health-translator.css" },
         { file: "css/bootstrap-treeview.min.css" },
-        { file: "css/bootstrap-stars.css" }
+        { file: "css/bootstrap-stars.css" },
+        { file: "css/contentscript.css" }
     ]);
 
     executeScripts(tabId, [
