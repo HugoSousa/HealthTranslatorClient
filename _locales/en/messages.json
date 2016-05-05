@@ -9,5 +9,15 @@
   "manualProcess":{
   	"message": "Click here to translate this page. You can change the execution mode in the extension's settings.",
   	"description": "Title of the browser action when execution mode is manual."
+  },
+  "suggest_concept":{
+    "message": "Suggest \"%s\" as a medical concept",
+    "description": "Text of the context menu"
+  },
+  "english":{
+    "message": "English"
+  }, 
+  "portuguese":{
+    "message": "Portuguese"
   }
 }

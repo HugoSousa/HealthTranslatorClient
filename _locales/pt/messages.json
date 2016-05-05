@@ -9,5 +9,15 @@
   "manualProcess":{
   	"message": "Clique aqui para processar esta página. Pode mudar o modo de execução nas definições da extensão.",
   	"description": "Title of the browser action when execution mode is manual."
+  },
+  "suggest_concept":{
+    "message": "Sugerir \"%s\" como conceito médico",
+    "description": "Text of the context menu"
+  },
+  "english":{
+    "message": "Inglês"
+  }, 
+  "portuguese":{
+    "message": "Português"
   }
 }

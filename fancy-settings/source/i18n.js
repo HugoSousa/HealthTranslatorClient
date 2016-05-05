@@ -77,8 +77,8 @@ this.i18n = {
 
     //ABOUT TAB
     "description": {
-        "en": "This extension helps you on your medical searches on the Web.\n It recognizes medical concepts on Web documents and provides you more information, such as a definition, a more familiar term, external references or related concepts. It is user-friendly, customizable and won't bother your search! It currently supports English and Portuguese.",
-        "pt": "Esta extensão ajuda-te nas tuas pesquisas médicas na Web.\n Reconhece conceitos médicos em documentos Web e fornece mais informação, tal como definição, um termo mais familiar, referências externas ou conceitos relacionados. É prática, customizável e não incomoda a tua pesquisa! Atualmente suporta a língua inglesa e portuguesa."
+        "en": "This extension helps you on your medical searches on the Web.\n It recognizes medical concepts on Web documents and provides you more information, such as a definition, a more familiar term, external references or related concepts. \n You can also suggest new medical concepts by selecting and right-clicking on any Web page. \n\n It is user-friendly, customizable and won't bother your search! It currently supports English and Portuguese.",
+        "pt": "Esta extensão ajuda-te nas tuas pesquisas médicas na Web.\n Reconhece conceitos médicos em documentos Web e fornece mais informação, tal como definição, um termo mais familiar, referências externas ou conceitos relacionados. \n Podes também sugerir novos conceitos médicos selecionando e clicando com o botão direito em qualquer página Web. \n\n É prática, customizável e não incomoda a tua pesquisa! Atualmente suporta a língua inglesa e portuguesa."
     },
     "check_status": {
         "en": "Request the server in order to check its status.",

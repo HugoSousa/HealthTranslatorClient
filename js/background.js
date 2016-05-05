@@ -49,21 +49,21 @@ changeExecutionMode();
 chrome.contextMenus.create({
     id: "cm",
     contexts: ["selection"],
-    title: "Suggest \"%s\" as a medical concept"
+    title: chrome.i18n.getMessage("suggest_concept")
 });
 
 chrome.contextMenus.create({
     id: "cm_en",
     contexts: ["selection"],
     parentId: "cm",
-    title: "English"
+    title: chrome.i18n.getMessage("english")
 });
 
 chrome.contextMenus.create({
     id: "cm_pt",
     contexts: ["selection"],
     parentId: "cm",
-    title: "Portuguese"
+    title: chrome.i18n.getMessage("portuguese")
 });
 
 
