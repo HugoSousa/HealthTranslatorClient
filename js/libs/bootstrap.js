@@ -1446,6 +1446,27 @@ if (typeof jQuery === 'undefined') {
         this.options.placement.call(this, $tip[0], this.$element[0]) :
         this.options.placement
 
+      var elementBefore = $('<i/>').css('display','inline').insertBefore(this.$element[0]);
+      var elementAfter = $('<i/>').css('display','inline').insertAfter(this.$element[0]);
+
+      var topBefore = elementBefore.offset().top;
+      var topAfter = elementAfter.offset().top;
+
+      elementBefore.remove();
+      elementAfter.remove();
+
+      if(topBefore != topAfter){ 
+        if(window.mousePos.y < topAfter){
+          //hovering top line
+          $tip.removeClass(placement);
+          placement = 'textleft';
+        }else{
+          //hovering bottom line
+          $tip.removeClass(placement);
+          placement = 'textright';
+        }
+      }
+      
       //doesnt place properly cases where the link is not close to the window width, but in a smaller container
       if(placement == 'textleft' && window.mousePos.x < 390){
         $tip.removeClass(placement);
@@ -1454,6 +1475,7 @@ if (typeof jQuery === 'undefined') {
         $tip.removeClass(placement);
         placement = 'textleft';
       }
+      
 
       var autoToken = /\s?auto?\s?/i
       var autoPlace = autoToken.test(placement)
