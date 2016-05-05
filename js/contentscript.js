@@ -532,8 +532,10 @@ $(document).ready(function(){
 			  		return;
 			  	}
 			  	
-
 			  	var changes = response.changes;
+			  	if(! response.changes){
+			  		console.log("HEALTHTRANSLATOR: Something went wrong.");
+			  	}
 
 			  	if(response.changes.length > 0 || isFirstProcess){
 			  		count += response.changes.length;
@@ -573,12 +575,18 @@ $(document).ready(function(){
 
 			  	if(split.length > 0){
 			  		//console.log(split);
-			  		disconnectObserver();
+			  		//disconnectObserver();
+			  		if(isProcessFinished){
+			  			disconnectObserver();
+			  		}
 				  	var replacementNode = document.createElement('x-health-translator');
 					replacementNode.innerHTML = changedNode;
 					node.parentNode.insertBefore(replacementNode, node);
 					node.parentNode.removeChild(node);
-					observeMutations();
+					if(isProcessFinished){
+			  			observeMutations();
+			  		}
+					//observeMutations();
 				}
 
 				var index = toProcess.indexOf(node);

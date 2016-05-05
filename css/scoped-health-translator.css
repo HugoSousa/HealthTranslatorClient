@@ -12,6 +12,7 @@
   /*! Source: https://github.com/h5bp/html5-boilerplate/blob/master/src/css/main.css */
 
 }
+
 .health-translator html {
   font-family: sans-serif;
   -ms-text-size-adjust: 100%;
@@ -1176,10 +1177,10 @@
 .health-translator .h4,
 .health-translator .h5,
 .health-translator .h6 {
-  font-family: inherit;
-  font-weight: 500;
-  line-height: 1.1;
-  color: inherit;
+  font-family: inherit !important;
+  font-weight: 500 !important;
+  line-height: 1.1 !important;
+  color: inherit !important;
 }
 .health-translator h1 small,
 .health-translator h2 small,
@@ -1205,9 +1206,9 @@
 .health-translator .h4 .small,
 .health-translator .h5 .small,
 .health-translator .h6 .small {
-  font-weight: normal;
-  line-height: 1;
-  color: #777777;
+  font-weight: normal !important;
+  line-height: 1 !important;
+  color: #777777 !important;
 }
 .health-translator h1,
 .health-translator .h1,
@@ -1238,8 +1239,8 @@
 .health-translator .h5,
 .health-translator h6,
 .health-translator .h6 {
-  margin-top: 10px;
-  margin-bottom: 10px;
+  margin-top: 10px !important;
+  margin-bottom: 10px !important;
 }
 .health-translator h4 small,
 .health-translator .h4 small,
@@ -1269,7 +1270,7 @@
 }
 .health-translator h4,
 .health-translator .h4 {
-  font-size: 18px;
+  font-size: 18px !important;
 }
 .health-translator h5,
 .health-translator .h5 {
@@ -1277,7 +1278,7 @@
 }
 .health-translator h6,
 .health-translator .h6 {
-  font-size: 12px;
+  font-size: 12px !important;
 }
 .health-translator p {
   margin: 0 0 10px;
@@ -6030,13 +6031,14 @@ button.health-translator .close {
 }
 
 .health-translator .tooltip-inner {
-  max-width: 200px;
-  padding: 3px 8px;
-  color: #ffffff;
-  text-align: center;
-  background-color: #000000;
-  border-radius: 4px;
+  max-width: 200px !important;
+  padding: 3px 8px !important;
+  color: #ffffff !important;
+  text-align: center !important;
+  background-color: #000000 !important;
+  border-radius: 4px !important;
 }
+
 .health-translator .tooltip-arrow {
   position: absolute;
   width: 0;

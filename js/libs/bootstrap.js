@@ -1446,6 +1446,7 @@ if (typeof jQuery === 'undefined') {
         this.options.placement.call(this, $tip[0], this.$element[0]) :
         this.options.placement
 
+      //doesnt place properly cases where the link is not close to the window width, but in a smaller container
       if(placement == 'textleft' && window.mousePos.x < 390){
         $tip.removeClass(placement);
         placement = 'textright';

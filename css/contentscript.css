@@ -20,22 +20,56 @@ div.health-translator.tooltip div.tooltip-inner{
 }
 
 div.health-translator.tooltip div.tooltip-inner *{
-    font-size: 12px !important;
+    font-size: 12px;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 div.health-translator.tooltip div.tooltip-inner p.definition{
-    text-align:justify !important;
-    margin-top: 10px;
-    margin-right: 10px;
-    margin-left: 10px;
+	text-align: justify;
 }
+
+div.health-translator.tooltip div.tooltip-inner p{
+	color: white;
+	background:none;
+}
+
+div.health-translator.tooltip div.tooltip-inner a:link, div.health-translator.tooltip div.tooltip-inner a:visited { 
+    color: rgb(51, 122, 183);
+    text-decoration: none;
+    cursor: auto;
+}
+
+div.health-translator.tooltip div.tooltip-inner a:hover, div.health-translator.tooltip div.tooltip-inner a:focus { 
+    color: rgb(35, 82, 124);
+    text-decoration: underline;
+}
+
 
 /* MODAL */
 
-#health-translator-modal, #health-translator-rating-modal{
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-	font-size: 14px;
+#health-translator-modal div, #health-translator-rating-modal div{
+	position: static !important;
+}
+
+#health-translator-modal a:link, #health-translator-modal a:visited { 
+    color: rgb(51, 122, 183);
+    text-decoration: none;
+    cursor: auto;
+}
+
+#health-translator-modal a:hover, #health-translator-modal a:focus {
+    color: rgb(35, 82, 124);
+    text-decoration: underline;
+}
+
+#health-translator-modal p{
+	font-size: 14px !important;
+	color: black !important;
+}
+
+#health-translator-rating-modal p{
+	font-size: 16px !important;
+	color: black !important;
 }
 
 #health-translator-modal .modal-body{
@@ -64,3 +98,4 @@ div.health-translator.tooltip div.tooltip-inner p.definition{
 #health-translator-references div.ext-ref{
 	margin-bottom: 5px;
 }
+

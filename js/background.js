@@ -1,5 +1,5 @@
-//var SERVER_URL = 'http://healthtranslator.fe.up.pt:8080';
-var SERVER_URL = 'http://localhost:8080';
+var SERVER_URL = 'http://healthtranslator.fe.up.pt:8080';
+//var SERVER_URL = 'http://localhost:8080';
 
 console.log("EXECUTED");
 

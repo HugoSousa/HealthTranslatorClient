@@ -17,7 +17,7 @@ this.i18n = {
     },
     "definition_quality": {
         "en": "Definition Quality",
-        "pt": "Qualidade da Avaliação"
+        "pt": "Qualidade da Definição"
     },
     "external_references_quality": {
         "en": "External References Quality",
