@@ -14,6 +14,11 @@ window.addEvent("domready", function () {
         var lang = i18n.get("language");
         var check = $$('div.tab-content>h2:contains(' + lang + ')');
         check.getParent().getElements('p.element.description').each(function(el){ el.addClass("bigger-description"); });
+
+        $$('input[value=#ff3333]')[0].getNext('label').setStyle('background-color', '#ff3333');
+        $$('input[value=#ffff66]')[0].getNext('label').setStyle('background-color', '#ffff66');
+        $$('input[value=#66ff66]')[0].getNext('label').setStyle('background-color', '#66ff66');
+        $$('input[value=#66b2ff]')[0].getNext('label').setStyle('background-color', '#66b2ff');
         
 
         settings.manifest.ping.addEvent("action", function () {
@@ -54,7 +59,7 @@ function ping(settings){
     var t0 = performance.now();
 
     var request = new Request({
-        url: "http://localhost:8080/HealthTranslatorServer/webresources/ping",
+        url: "http://healthtranslator.fe.up.pt:8080/HealthTranslatorServer/webresources/ping",
         method: 'get',
         onSuccess: function(responseText){
             console.log("PING SUCCESS");

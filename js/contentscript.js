@@ -272,6 +272,11 @@ $(document).ready(function(){
 
 			//observeMutations();
 		});
+	
+		chrome.runtime.sendMessage({action: "getColor"}, function(response){
+			var style = $('<style>.medical-term-translate { background-color: '+response+'; }</style>');
+			$('html > head').append(style);
+		});
 
 		$('body').tooltip({
 		    delay: {show: 300, hide: 350},

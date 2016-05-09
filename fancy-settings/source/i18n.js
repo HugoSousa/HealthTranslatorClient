@@ -27,6 +27,10 @@ this.i18n = {
         "en": "Filters",
         "pt": "Filtros"
     },
+    "style": {
+        "en": "Style",
+        "pt": "Estilo"
+    },
 
     //GROUPS
     "what_is_it": {
@@ -72,6 +76,10 @@ this.i18n = {
     "external_references": {
         "en": "External References",
         "pt": "Referências Externas"
+    },
+    "concept_color": {
+        "en": "Concept color",
+        "pt": "Cor dos conceitos"
     },
 
 
@@ -188,6 +196,28 @@ this.i18n = {
     "ext_refs_label": {
         "en": "Always include English external references",
         "pt": "Incluir sempre referências externas em Inglês"
-    }
+    },
+
+    //COLORS TAB
+    "concept_color_def": {
+        "en": "Choose the color of the recognized medical concepts",
+        "pt": "Escolha a cor dos termos médicos reconhecidos"
+    },
+    "red": {
+        "en": "Red",
+        "pt": "Vermelho"
+    },
+    "yellow": {
+        "en": "Yellow",
+        "pt": "Amarelo "
+    },
+    "green": {
+        "en": "Green",
+        "pt": "Verde "
+    },
+    "blue": {
+        "en": "Blue",
+        "pt": "Azul"
+    },
 
 };

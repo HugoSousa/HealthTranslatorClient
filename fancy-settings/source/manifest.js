@@ -1171,8 +1171,22 @@ this.manifest = {
             "type": "checkbox",
             "label": i18n.get("ext_refs_label"),
             "name": "ext_refs"
+        },
+
+        //COLOR TAB
+        {
+            "tab": i18n.get("style"),
+            "group": i18n.get("concept_color"),
+            "type": "radioButtons",
+            "label": i18n.get("concept_color_def"),
+            "name": "concept_color",
+            "options": [
+                ["#ff3333", i18n.get("red")],
+                ["#ffff66", i18n.get("yellow")],
+                ["#66ff66", i18n.get("green")],
+                ["#66b2ff", i18n.get("blue")]
+            ]
         }
-        
     ]
     /*,
     "alignment": [

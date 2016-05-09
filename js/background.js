@@ -1,8 +1,6 @@
 var SERVER_URL = 'http://healthtranslator.fe.up.pt:8080';
 //var SERVER_URL = 'http://localhost:8080';
 
-console.log("EXECUTED");
-
 var settings = new Store("settings", {
     "mode": "click",
     "definition_filter": "yes",
@@ -12,6 +10,7 @@ var settings = new Store("settings", {
     "lang_pt": true,
     "lang_content": "detected",
     "ext_refs": false,
+    "concept_color": "#ffff66",
     "sty_5": true,
     "sty_7": true,
     "sty_19": true,
@@ -131,6 +130,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         case 'ping':
             ping(sender.tab.id, sendResponse);
             return true;
+            break;
+        case 'getColor':
+            sendResponse(settings.get("concept_color"));
             break;
     }
 
