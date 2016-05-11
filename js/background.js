@@ -281,7 +281,7 @@ function getContentLanguage(data, sendResponse){
 }
 
 function isSupportedLanguage(language){
-    if(language == "pt" && settings.get("lang_en") == true)
+    if(language == "pt" && settings.get("lang_pt") == true)
         return true;
     if(language == "en" && settings.get("lang_en") == true)
         return true;
