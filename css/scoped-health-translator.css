@@ -5813,14 +5813,14 @@ button.health-translator .list-group-item-danger.active:focus {
   border-radius: 3px;
 }
 .health-translator .close {
-  float: right;
-  font-size: 21px;
-  font-weight: bold;
-  line-height: 1;
-  color: #000000;
-  text-shadow: 0 1px 0 #ffffff;
-  opacity: 0.2;
-  filter: alpha(opacity=20);
+  float: right !important;
+  font-size: 21px !important;
+  font-weight: bold !important;
+  line-height: 1 !important;
+  color: #000000 !important;
+  text-shadow: 0 1px 0 #ffffff !important;
+  opacity: 0.2 !important;
+  filter: alpha(opacity=20) !important;
 }
 .health-translator .close:hover,
 .health-translator .close:focus {
@@ -5851,6 +5851,8 @@ button.health-translator .close {
   z-index: 1050;
   -webkit-overflow-scrolling: touch;
   outline: 0;
+  max-width: initial;
+  background: initial;
 }
 .health-translator .modal.fade .modal-dialog {
   -webkit-transform: translate(0, -25%);
@@ -5921,7 +5923,7 @@ button.health-translator .close {
   padding: 15px;
 }
 .health-translator .modal-footer {
-  padding: 15px;
+  padding: 15px !important;
   text-align: right;
   border-top: 1px solid #e5e5e5;
 }

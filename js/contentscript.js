@@ -22,40 +22,39 @@ $.fn.tooltip.Constructor.prototype.leave = function(obj){
 	}
 };
 
-var modal="";
-modal += "<!-- Modals -->";
-modal += "<div class=\"health-translator\">";
-modal += "<div class=\"modal fade\" id=\"health-translator-modal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"health-translator-modal-label\">";
-modal += "  <div class=\"modal-dialog\" role=\"document\">";
-modal += "    <div class=\"modal-content\">";
-modal += "      <div class=\"modal-header\">";
-modal += "        <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;<\/span><\/button>";
-modal += "        <div class=\"modal-title\" id=\"health-translator-modal-label\">";
-modal += "			<h4 id=\"health-translator-concept-name\"></h4>";		
-modal += "			<h6 id=\"health-translator-semantic-type\"></h6>";	
-modal += "        <\/div>";
-modal += "      <\/div>";
-modal += "      <div class=\"modal-body\">";
-modal += "			<div id=\"health-translator-loading\" class=\"text-center\">";
-modal += "				<img src=\"" + chrome.extension.getURL("images/loading.gif") + "\">";
-modal += "      	<\/div>";
-modal += "			<div id=\"health-translator-definition\">";
-modal += "      	<\/div>";
-modal += "			<div class=\"text-center\" id=\"health-translator-references\">";
-modal += "			<\/div>";
-modal += "			<div id=\"health-translator-relationships\">";
-modal += "			<\/div>";
-modal += "      <\/div>";
-modal += "      <div id=\"health-translator-footer\" class=\"modal-footer text-center\">";
+var modalDetails="";
+modalDetails += "<div id=\"ht-modal-container\" class=\"health-translator\">";
+modalDetails += "<div class=\"modal fade\" id=\"health-translator-modal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"health-translator-modal-label\">";
+modalDetails += "  <div class=\"modal-dialog\" role=\"document\">";
+modalDetails += "    <div class=\"modal-content\">";
+modalDetails += "      <div class=\"modal-header\">";
+modalDetails += "        <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;<\/span><\/button>";
+modalDetails += "        <div class=\"modal-title\" id=\"health-translator-modal-label\">";
+modalDetails += "			<h4 id=\"health-translator-concept-name\"></h4>";		
+modalDetails += "			<h6 id=\"health-translator-semantic-type\"></h6>";	
+modalDetails += "        <\/div>";
+modalDetails += "      <\/div>";
+modalDetails += "      <div class=\"modal-body\">";
+modalDetails += "			<div id=\"health-translator-loading\" class=\"text-center\">";
+modalDetails += "				<img src=\"" + chrome.extension.getURL("images/loading.gif") + "\">";
+modalDetails += "      	<\/div>";
+modalDetails += "			<div id=\"health-translator-definition\">";
+modalDetails += "      	<\/div>";
+modalDetails += "			<div class=\"text-center\" id=\"health-translator-references\">";
+modalDetails += "			<\/div>";
+modalDetails += "			<div id=\"health-translator-relationships\">";
+modalDetails += "			<\/div>";
+modalDetails += "      <\/div>";
+modalDetails += "      <div id=\"health-translator-footer\" class=\"modal-footer text-center\">";
 //modal += "        <button type=\"button\" class=\"btn btn-primary\">Rate This<\/button>";
-modal += "      <\/div>";
-modal += "    <\/div>";
-modal += "  <\/div>";
-modal += "<\/div>";
-modal += "<\/div>";
+modalDetails += "      <\/div>";
+modalDetails += "    <\/div>";
+modalDetails += "  <\/div>";
+modalDetails += "<\/div>";
+modalDetails += "<\/div>";
 
 var modalRating="";
-modalRating += "<div class=\"health-translator\">";
+modalRating += "<div id=\"ht-rating-modal-container\" class=\"health-translator\">";
 modalRating += "	<div class=\"modal fade\" id=\"health-translator-rating-modal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"health-translator-rating-modal-label\" data-backdrop=\"static\" data-keyboard=\"false\">";
 modalRating += "	  <div class=\"modal-dialog\" role=\"document\">";
 modalRating += "	    <div class=\"modal-content\">";
@@ -133,26 +132,49 @@ $(document).ready(function(){
 
 	    	if(mutations[i].addedNodes.length > 0){
 		    	var $mut = $(mutations[i].addedNodes);
-			    if(! $mut.is("script")){
-			    	execute = true;
-				}
-
+				
 				$mut.each(function() {
-					console.log("AAAA");
-					console.log(this);
-					processText(this);	
+					//console.log("AAAA");
+					//console.log("NODE TYPE");
+					//console.log(this.nodeType);
+					//if(this.nodeType == 3){
+						processText(this);	
+					//}
+					
 				});
 			}
 
 			if(mutations[i].removedNodes.length > 0){
+
+				//check if modals were removed
 				var removedConcepts = 0;
 				var $mut = $(mutations[i].removedNodes);
 			    if(! $mut.is("script")){
 					$mut.each(function(){
+						
+						if(this.id == 'health-translator-modal' || this.id == 'ht-modal-container'){
+							console.log(this);
+							//append health-translator-modal again
+							disconnectObserver();
+							$('#ht-modal-container').remove();
+							$('body').append(modalDetails);
+							observeMutations();						
+						}else if(this.id == 'health-translator-rating-modal' || this.id == 'ht-rating-modal-container'){
+							console.log(this);
+							//append health-translator-modal again
+							disconnectObserver();
+							$('#ht-rating-modal-container').remove();
+							$('body').append(modalRating);
+							setRatingWidget();
+							observeMutations();
+						}
+						
 						removedHTML = $.parseHTML(this.outerHTML);
 						removedCount = $(removedHTML).find('x-health-translator.health-translator').length;
-						count -= removedCount;
-						chrome.runtime.sendMessage({action: "setBadgeText", count: count});
+						if(removedCount > 0){
+							count -= removedCount;
+							chrome.runtime.sendMessage({action: "setBadgeText", count: count});
+						}
 					});
 				}
 			}
@@ -165,12 +187,12 @@ $(document).ready(function(){
 			subtree: true,
 			characterData: true
 		});
-		//console.log("Observing mutations");
+		console.log("Observing mutations");
 	}
 
 	disconnectObserver = function (){
 		observer.disconnect();
-		//console.log("Disconnected Observer");
+		console.log("Disconnected Observer");
 	}
 
 	function registerEvents(){
@@ -296,7 +318,7 @@ $(document).ready(function(){
 		});
 
 		$('body').on('click', '.tooltip a', function(){
-
+			
 			$('#health-translator-loading').show();
 
 			console.log("Abri um tooltip");
@@ -306,7 +328,7 @@ $(document).ready(function(){
 			var conceptSpan = $('.medical-term-translate[aria-describedby="' + tooltip_id + '"]');
 			var term = conceptSpan.attr('data-term');
 			var cui = conceptSpan.attr('data-cui');
-			var lang = $("body").attr('data-ht-lang')
+			var lang = $("body").attr('data-ht-lang');
 			tooltip.tooltip("hide");
 
 			disconnectObserver();
@@ -319,6 +341,7 @@ $(document).ready(function(){
 				string: term,
 				language: lang
 			};
+
 
 			chrome.runtime.sendMessage({action: "details", data: conceptData}, function(response){
 				console.log("RESULT:");
@@ -466,6 +489,7 @@ $(document).ready(function(){
 			
 		}else{
 			console.log("HEALTHTRANSLATOR: Language not supported - " + response.language);
+			chrome.runtime.sendMessage({action: "setBadgeText", count: "?"});
 		}
 	});
 
@@ -491,7 +515,7 @@ $(document).ready(function(){
 	}
 
 	function appendModals(){
-		$('body').append(modal); 
+		$('body').append(modalDetails); 
 		$('body').append(modalRating);
 	}
 
@@ -529,6 +553,11 @@ $(document).ready(function(){
 			toProcess.push(node);
 			chrome.runtime.sendMessage({action: "processDocument", data: bodyData}, function(response){
 
+				if(node.parentNode === null){
+					console.log("NULL NODE - GET OUT");
+					return;
+				}
+
 			  	var split = []
 
 			  	//console.log(response);
@@ -542,8 +571,8 @@ $(document).ready(function(){
 			  		console.log("HEALTHTRANSLATOR: Something went wrong.");
 			  	}
 
-			  	if(response.changes.length > 0 || isFirstProcess){
-			  		count += response.changes.length;
+			  	if(changes.length > 0 || isFirstProcess){
+			  		count += changes.length;
 			  		chrome.runtime.sendMessage({action: "setBadgeText", count: count});
 
 			  		if(isFirstProcess){

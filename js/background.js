@@ -18,7 +18,6 @@ var settings = new Store("settings", {
     "sty_23": true,
     "sty_29": true,
     "sty_30": true,
-    "sty_33": true,
     "sty_37": true,
     "sty_46": true,
     "sty_47": true,
@@ -89,29 +88,28 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
     switch (request.action) {
         case 'processDocument':
-            console.log("PROCESS ON BACKGROUND");
+            //console.log("PROCESS ON BACKGROUND");
             processDocument(request.data, sender.tab.id, sendResponse);
             return true;
             break;
         case 'details':
-            console.log("DETAILS ON BACKGROUND");
+            //console.log("DETAILS ON BACKGROUND");
             getDetails(request.data, sendResponse);
             return true;
             break;
         case 'submitRating':
-            console.log("SUBMIT RATING");
+            //console.log("SUBMIT RATING");
             submitRating(request.data, sendResponse);
             return true;
             break;
         case 'getContentLanguage':
-            console.log("GET CONTENT LANGUAGE");
+            //console.log("GET CONTENT LANGUAGE");
             getContentLanguage(request.data, sendResponse);
             return true;
             break;
         case 'detectLanguage':
-            console.log("DETECT LANGUAGE");
+            //console.log("DETECT LANGUAGE");
             chrome.tabs.detectLanguage(sender.tab.id, function(language){
-                console.log("LANGUAGE: " + language);
                 response = {};
                 response.language = language;
                 if(isSupportedLanguage(language)){
@@ -157,9 +155,11 @@ function processDocument(data, tabId, sendResponse){
 
     addSettingsData(data);
 
+    /*
     var dt = new Date();
     var time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds() + ":" + dt.getMilliseconds();
     console.log(time);
+    */
 
     $.ajax({
         url: SERVER_URL + "/HealthTranslatorServer/webresources/process",
@@ -169,7 +169,6 @@ function processDocument(data, tabId, sendResponse){
         contentType: "application/json;charset=UTF-16",
         cache: false,
         success: function(result){
-            console.log(result);
 
             //sendResponse(result);
             
@@ -336,8 +335,8 @@ function browserActionCallback(tab){
 }
 
 function tabUpdatedCallback(tabId, changeInfo, tab){
-    console.log("STATUS:" + JSON.stringify(changeInfo));
-    console.log("TAB:" + JSON.stringify(tab));
+    //console.log("STATUS:" + JSON.stringify(changeInfo));
+    //console.log("TAB:" + JSON.stringify(tab));
     if (changeInfo.status == 'complete' && tab.status == 'complete' && tab.url != undefined && tab.url.substring(0, 9) !== 'chrome://') {
         console.log("EXECUTE CONTENT SCRIPT");
         chrome.browserAction.setBadgeText({

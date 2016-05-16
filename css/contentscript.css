@@ -1,65 +1,126 @@
 /* CONCEPT SPAN */
 .health-translator .medical-term-translate{
-	/*background-color:#66FF66;*/
-	display: inline;
-	position:relative;
+	/*background-color:#66FF66 !important;*/
+	display: inline !important;
+	position:relative !important;
 }
 
 
 x-health-translator.medical-term-translate{
-	cursor: help;
+	cursor: help !important;
 }
 
 a x-health-translator.medical-term-translate{
-	cursor: inherit;
+	cursor: inherit !important;
 }
 
 /* TOOLTIP */
+div.health-translator.tooltip.in {
+	color: transparent !important;
+	cursor: default !important;
+}
+
 div.health-translator.tooltip div.tooltip-inner{
-    max-width: 378px !important;
+    max-width: 378px  !important;;
 }
 
 div.health-translator.tooltip div.tooltip-inner *{
-    font-size: 12px;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 12px !important;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
 }
 
 div.health-translator.tooltip div.tooltip-inner p.definition{
-	text-align: justify;
+	text-align: justify !important;
 }
 
 div.health-translator.tooltip div.tooltip-inner p{
-	color: white;
-	background:none;
+	color: white !important;
+	background:none !important;
 }
 
 div.health-translator.tooltip div.tooltip-inner a:link, div.health-translator.tooltip div.tooltip-inner a:visited { 
-    color: rgb(51, 122, 183);
-    text-decoration: none;
-    cursor: auto;
+    color: rgb(51, 122, 183) !important;
+    text-decoration: none !important;
+    cursor: auto !important;
 }
 
 div.health-translator.tooltip div.tooltip-inner a:hover, div.health-translator.tooltip div.tooltip-inner a:focus { 
-    color: rgb(35, 82, 124);
-    text-decoration: underline;
+    color: rgb(35, 82, 124) !important;
+    text-decoration: underline !important;
 }
 
 
 /* MODAL */
+.health-translator .modal-footer {
+	background: #ffffff !important;
+}
+
+.health-translator .modal-body {
+	background: #ffffff !important;
+	padding: 15px !important;
+}
+
+.health-translator .modal-header {
+	background: #ffffff !important;
+	text-align: left !important;
+}
+
+.health-translator .modal-content {
+	padding: 0px !important;
+}
+
+.health-translator .modal-header {
+	padding: 15px !important;
+}
+
+.health-translator button {
+	box-shadow: none !important;
+}
+
+.health-translator .modal {
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font-size: 14px !important;
+}
+
+.health-translator ul{
+	padding: 0px !important;
+	margin: 0px !important;
+}
+
+.health-translator button.close{
+	display: inline-block !important;
+    position: static !important;
+    padding: 1px 6px !important;
+    vertical-align: middle !important;
+    min-height: 0px !important;
+    background-color: buttonface !important;
+    border-radius: 0 !important;
+    border-width: 2px !important;
+    border-style: outset !important;
+    border-color: buttonface !important;
+    cursor: pointer !important;
+    outline: none !important;
+    touch-action: manipulation !important;
+    transition: none !important;
+}
 
 #health-translator-modal div, #health-translator-rating-modal div{
 	position: static !important;
 }
 
 #health-translator-modal a:link, #health-translator-modal a:visited { 
-    color: rgb(51, 122, 183);
-    text-decoration: none;
-    cursor: auto;
+    color: rgb(51, 122, 183) !important;
+    text-decoration: none !important;
+    cursor: auto !important;
 }
 
 #health-translator-modal a:hover, #health-translator-modal a:focus {
-    color: rgb(35, 82, 124);
-    text-decoration: underline;
+    color: rgb(35, 82, 124) !important;
+    text-decoration: underline !important;
+}
+
+.health-translator .modal a{
+	font-size: 14px !important;
 }
 
 #health-translator-modal p{
@@ -73,29 +134,29 @@ div.health-translator.tooltip div.tooltip-inner a:hover, div.health-translator.t
 }
 
 #health-translator-modal .modal-body{
-	overflow-y:auto;
-	max-height: calc(100vh - 200px);
+	overflow-y:auto !important;
+	max-height: calc(100vh - 200px) !important;
 }
 
 #health-translator-concept-name:first-letter, #ht-rating-concept-name:first-letter{
-	display: block;
-	text-transform: uppercase;
+	display: block !important;
+	text-transform: uppercase !important;
 }
 
 #health-translator-semantic-type{
-	margin-bottom: 0px; 
-	margin-top: 0px;
+	margin-bottom: 0px !important; 
+	margin-top: 0px !important;
 }
 
 #health-translator-concept-name{
-	margin-bottom: 5px;
+	margin-bottom: 5px !important;
 }
 
 #health-translator-footer{
-	text-align: center;
+	text-align: center !important;
 }
 
 #health-translator-references div.ext-ref{
-	margin-bottom: 5px;
+	margin-bottom: 5px !important;
 }
 

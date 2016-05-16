@@ -218,7 +218,6 @@ function setDefaultSemanticTypes(settings){
     settings.manifest.sty_23.set(true);
     settings.manifest.sty_29.set(true);
     settings.manifest.sty_30.set(true);
-    settings.manifest.sty_33.set(true);
     settings.manifest.sty_37.set(true);
     settings.manifest.sty_46.set(true);
     settings.manifest.sty_47.set(true);

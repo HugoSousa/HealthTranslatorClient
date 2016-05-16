@@ -8,9 +8,11 @@
         var key;
         this.name = name;
         
+        console.log(this.get("mode"));
         if (defaults !== undefined) {
             for (key in defaults) {
-                if (defaults.hasOwnProperty(key)) {
+                if (this.get(key) === null && defaults.hasOwnProperty(key)){
+                    console.log("SET " + key);
                     this.set(key, defaults[key]);
                 }
             }
