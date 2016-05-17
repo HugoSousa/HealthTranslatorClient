@@ -114,72 +114,86 @@ modalRating += "<\/div>";
 
 $(document).ready(function(){ 
 
-	var isFirstProcess = true;
-	var count = 0;
-	var toProcess = [];
-	MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+	console.log("OI");
+	chrome.runtime.onMessage.addListener(
+	    function(request, sender, sendResponse) {
+	        if (request.check == "check")
+	            sendResponse({message: "ack"});
+ 	});
+
+
+	if(typeof $('body').attr('data-ht-lang') === "undefined"){ 
+		var isFirstProcess = true;
+		var count = 0;
+		var toProcess = [];
+		MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
 	
-	observer = new MutationObserver(function(mutations, observer) {
+	
+		observer = new MutationObserver(function(mutations, observer) {
 
-	    console.log("Change in the DOM");
-	    console.log(mutations);
+		    console.log("Change in the DOM");
+		    console.log(mutations);
 
-		for(var i = 0; i < mutations.length; i++){
-			if(mutations[i].type == 'childList' && mutations[i].target.className == 'br-current-rating' && mutations[i].target.parentNode != null & mutations[i].target.parentNode.parentNode != null && mutations[i].target.parentNode.parentNode.classList.toString().indexOf('health-translator-rating-widget') != -1){
-				//ignore changes in rating modal
-				continue;
-			}
+			for(var i = 0; i < mutations.length; i++){
 
-	    	if(mutations[i].addedNodes.length > 0){
-		    	var $mut = $(mutations[i].addedNodes);
-				
-				$mut.each(function() {
-					//console.log("AAAA");
-					//console.log("NODE TYPE");
-					//console.log(this.nodeType);
-					//if(this.nodeType == 3){
-						processText(this);	
-					//}
+				if(mutations[i].type == 'childList' && mutations[i].target.className == 'br-current-rating' && mutations[i].target.parentNode != null & mutations[i].target.parentNode.parentNode != null && mutations[i].target.parentNode.parentNode.classList.toString().indexOf('health-translator-rating-widget') != -1){
+					//ignore changes in rating modal
+					continue;
+				}
+
+		    	if(mutations[i].addedNodes.length > 0){
+			    	var $mut = $(mutations[i].addedNodes);
 					
-				});
-			}
-
-			if(mutations[i].removedNodes.length > 0){
-
-				//check if modals were removed
-				var removedConcepts = 0;
-				var $mut = $(mutations[i].removedNodes);
-			    if(! $mut.is("script")){
-					$mut.each(function(){
-						
-						if(this.id == 'health-translator-modal' || this.id == 'ht-modal-container'){
-							console.log(this);
-							//append health-translator-modal again
-							disconnectObserver();
-							$('#ht-modal-container').remove();
-							$('body').append(modalDetails);
-							observeMutations();						
-						}else if(this.id == 'health-translator-rating-modal' || this.id == 'ht-rating-modal-container'){
-							console.log(this);
-							//append health-translator-modal again
-							disconnectObserver();
-							$('#ht-rating-modal-container').remove();
-							$('body').append(modalRating);
-							setRatingWidget();
-							observeMutations();
-						}
-						
-						removedHTML = $.parseHTML(this.outerHTML);
-						removedCount = $(removedHTML).find('x-health-translator.health-translator').length;
-						if(removedCount > 0){
-							count -= removedCount;
-							chrome.runtime.sendMessage({action: "setBadgeText", count: count});
-						}
+					$mut.each(function() {
+						var $textNodes = getTextNodesIn(this);
+						$textNodes.each(function() {
+							//don't process already recognized terms
+							if(this.parentNode.nodeName != "x-health-translator" &&  ! this.parentNode.classList.contains("medical-term-translate")){
+								processText(this);
+							}else{
+								console.log("ALREADY RECOGNIZED TERM!!");
+							}
+						});
 					});
 				}
+
+				if(mutations[i].removedNodes.length > 0){
+
+					//check if modals were removed
+					var removedConcepts = 0;
+					var $mut = $(mutations[i].removedNodes);
+				    if(! $mut.is("script")){
+						$mut.each(function(){
+							
+							if(this.id == 'health-translator-modal' || this.id == 'ht-modal-container'){
+								console.log(this);
+								//append health-translator-modal again
+								disconnectObserver();
+								$('#ht-modal-container').remove();
+								$('body').append(modalDetails);
+								observeMutations();						
+							}else if(this.id == 'health-translator-rating-modal' || this.id == 'ht-rating-modal-container'){
+								console.log(this);
+								//append health-translator-modal again
+								disconnectObserver();
+								$('#ht-rating-modal-container').remove();
+								$('body').append(modalRating);
+								setRatingWidget();
+								observeMutations();
+							}
+							
+							removedHTML = $.parseHTML(this.outerHTML);
+							removedCount = $(removedHTML).find('x-health-translator.health-translator').length;
+							if(removedCount > 0){
+								count -= removedCount;
+								chrome.runtime.sendMessage({action: "setBadgeText", count: count});
+							}
+						});
+					}
+				}
 			}
-		}
-	});
+		});
+	}
 
 	observeMutations = function (){
 		observer.observe(document.body, {
@@ -475,23 +489,34 @@ $(document).ready(function(){
 
 	var t0 = performance.now();
 
+	//disconnectObserver();
 
-	chrome.runtime.sendMessage({action: "detectLanguage"}, function(response){
-		console.log(response);
-		//check if it's a language to process
-		if(response.supported){
-			$('body').attr('data-ht-lang', response.language);
-			
-			processText('body');
-			appendModals();
-			setRatingWidget();
-			registerEvents();
-			
-		}else{
-			console.log("HEALTHTRANSLATOR: Language not supported - " + response.language);
-			chrome.runtime.sendMessage({action: "setBadgeText", count: "?"});
-		}
-	});
+	//check if has language in body already - page was already processed, is just being reloaded
+	if(typeof $('body').attr('data-ht-lang') === "undefined"){ 
+		console.log("EXECUTE THIS!");
+		chrome.runtime.sendMessage({action: "detectLanguage"}, function(response){
+			console.log(response);
+			if(response.supported){
+				$('body').attr('data-ht-lang', response.language);
+				
+				processText('body');
+				disconnectObserver();
+
+				appendModals();
+				setRatingWidget();
+				registerEvents();
+
+				observeMutations();
+				
+			}else{
+				console.log("HEALTHTRANSLATOR: Language not supported - " + response.language);
+				chrome.runtime.sendMessage({action: "setBadgeText", count: "?"});
+			}
+		});
+	}else{
+		count = $('body').find('x-health-translator.medical-term-translate').length;
+		chrome.runtime.sendMessage({action: "setBadgeText", count: count});
+	}
 
 
 	function processText(element){
@@ -617,9 +642,11 @@ $(document).ready(function(){
 					replacementNode.innerHTML = changedNode;
 					node.parentNode.insertBefore(replacementNode, node);
 					node.parentNode.removeChild(node);
+					/*
 					if(isProcessFinished){
 			  			observeMutations();
 			  		}
+			  		*/
 					//observeMutations();
 				}
 

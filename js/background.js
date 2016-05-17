@@ -338,12 +338,19 @@ function tabUpdatedCallback(tabId, changeInfo, tab){
     //console.log("STATUS:" + JSON.stringify(changeInfo));
     //console.log("TAB:" + JSON.stringify(tab));
     if (changeInfo.status == 'complete' && tab.status == 'complete' && tab.url != undefined && tab.url.substring(0, 9) !== 'chrome://') {
-        console.log("EXECUTE CONTENT SCRIPT");
-        chrome.browserAction.setBadgeText({
-            text: "...", 
-            tabId: tab.id
+        chrome.tabs.sendMessage(tab.id, {check: "check"}, function(response) {
+            if (response) {
+                console.log("Already there");
+            }
+            else {
+                console.log("Not there, inject contentscript");
+                chrome.browserAction.setBadgeText({
+                    text: "...", 
+                    tabId: tab.id
+                });
+                injectScriptsAndCSS(tabId);
+            }
         });
-        injectScriptsAndCSS(tabId);
     }
 }
 
@@ -360,7 +367,6 @@ function injectScriptsAndCSS(tabId){
     executeScripts(tabId, [
         //{ file: "js/libs/jquery.min.js" }, //JQUERY IS ALREADY INJECTED ON EVERY PAGE
         { file: "js/libs/bootstrap.js" },
-        { file: "js/libs/lz-string.min.js" },
         { file: "js/libs/bootstrap-treeview.min.js" },
         { file: "js/libs/jquery.barrating.min.js" },
         { file: "js/i18n.js"},
@@ -436,6 +442,9 @@ function getTUID(){
 }
 
 function setBadgeText(tabId, text){
+    if(parseInt(text) < 0)
+        text = "0";
+
     chrome.browserAction.setBadgeText({
         text: text, 
         tabId: tabId
