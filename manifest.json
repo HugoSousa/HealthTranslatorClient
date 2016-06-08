@@ -28,8 +28,9 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "css": [ "css/toastr.css"],
-      "js": ["js/libs/jquery.min.js", "js/libs/toastr.js", "js/toast.js"]
+      "css": [ "css/toastr.css", "css/scoped-health-translator.css", "css/bootstrap-treeview.min.css", "css/bootstrap-stars.css", "css/contentscript.css"],
+      "js": ["js/libs/jquery.min.js", "js/libs/toastr.js", "js/toast.js", "js/libs/bootstrap.js", "js/libs/bootstrap-treeview.min.js", "js/libs/jquery.barrating.min.js", "js/i18n.js", "js/contentscript.js"],
+      "run_at": "document_start"
     }
   ],
   "background": {

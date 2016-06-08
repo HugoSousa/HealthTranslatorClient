@@ -112,13 +112,23 @@ modalRating += "	  <\/div>";
 modalRating += "	<\/div>";
 modalRating += "<\/div>";
 
-$(document).ready(function(){ 
+window.translate = false;
 
-	chrome.runtime.onMessage.addListener(
-	    function(request, sender, sendResponse) {
-	        if (request.check == "check")
-	            sendResponse({message: "ack"});
- 	});
+function listenerInitBeforeDOM(request, sender, sendResponse){
+	if (request.action == "init"){
+    	console.log("INIT!");
+    	try{
+        	init();
+        }
+		catch(err) {
+		    console.log("DOM not loaded yet!");
+		    window.translate = true;
+		}
+    }
+}
+chrome.runtime.onMessage.addListener(listenerInitBeforeDOM);
+
+$(document).ready(function(){ 
 
 	var isFirstProcess = true;
 	var count = 0;
@@ -197,16 +207,16 @@ $(document).ready(function(){
 			subtree: true,
 			characterData: true
 		});
-		console.log("Observing mutations");
+		//console.log("Observing mutations");
 	}
 
 	disconnectObserver = function (){
 		observer.disconnect();
-		console.log("Disconnected Observer");
+		//console.log("Disconnected Observer");
 	}
 
 	function registerEvents(){
-		console.log("REGISTER EVENTS");
+		//console.log("REGISTER EVENTS");
 		
 		var timer;
 
@@ -305,10 +315,7 @@ $(document).ready(function(){
 			//observeMutations();
 		});
 	
-		chrome.runtime.sendMessage({action: "getColor"}, function(response){
-			var style = $('<style>.medical-term-translate { background-color: '+response+'; }</style>');
-			$('html > head').append(style);
-		});
+		
 
 		$('body').tooltip({
 		    delay: {show: 300, hide: 350},
@@ -483,33 +490,39 @@ $(document).ready(function(){
 		});
 	};
 
-	var t0 = performance.now();
+	var t0;
+	function init(){
+		t0 = performance.now();
 
-	//disconnectObserver();
+		chrome.runtime.sendMessage({action: "getColor"}, function(response){
+			var style = $('<style>.medical-term-translate { background-color: '+response+'; }</style>');
+			$('html > head').append(style);
+		});
 
-	//check if has language in body already - page was already processed, is just being reloaded
-	console.log("EXECUTE THIS!");
-	chrome.runtime.sendMessage({action: "detectLanguage"}, function(response){
-		console.log(response);
-		if(response.supported){
-			$('body').attr('data-ht-lang', response.language);
-			
-			processText('body');
-			disconnectObserver();
+		//disconnectObserver();
 
-			appendModals();
-			setRatingWidget();
-			registerEvents();
+		//console.log("EXECUTE THIS!");
+		chrome.runtime.sendMessage({action: "detectLanguage"}, function(response){
+			console.log(response);
+			if(response.supported){
+				$('body').attr('data-ht-lang', response.language);
+				
+				processText('body');
+				disconnectObserver();
 
-			observeMutations();
-			
-		}else{
-			console.log("HEALTHTRANSLATOR: Language not supported - " + response.language);
-			chrome.runtime.sendMessage({action: "setBadgeText", count: "?"});
-		}
-	});
+				appendModals();
+				setRatingWidget();
+				registerEvents();
 
-
+				observeMutations();
+				
+			}else{
+				console.log("HEALTHTRANSLATOR: Language not supported - " + response.language);
+				chrome.runtime.sendMessage({action: "setBadgeText", count: "?"});
+			}
+		});
+	}
+	
 	function processText(element){
 
 		if(element.nodeType == 3){
@@ -519,7 +532,7 @@ $(document).ready(function(){
 			chrome.runtime.sendMessage({action: "ping"}, function(response){
 				if(response.success == true){
 					$textNodes = getTextNodesIn(element);
-					console.log($textNodes);
+					//console.log($textNodes);
 					
 					$textNodes.each(function() {
 						checkChangesNode(this);	
@@ -554,7 +567,7 @@ $(document).ready(function(){
 	}
 
 	function getTextNodesIn(el) {
-	    return $(el).find(":not(script):not(head):not(style)").addBack().contents().filter(function() {
+	    return $(el).find(":not(iframe):not(script):not(head):not(style)").addBack().contents().filter(function() {
 	    	var notInsideModals = $(this).closest("#health-translator-modal").length == 0 && $(this).closest("#health-translator-modal").length == 0;
 	        return notInsideModals && this.nodeType == 3;
 	    });
@@ -579,13 +592,13 @@ $(document).ready(function(){
 			  	var split = []
 
 			  	//console.log(response);
-			  	if(response.hasOwnProperty("status") && response.status == 0){
+			  	if(response == 'undefined' ||  (response.hasOwnProperty("status") && response.status == 0)){
 			  		console.log("HEALTHTRANSLATOR: Error processing a text node.");
 			  		return;
 			  	}
 			  	
 			  	var changes = response.changes;
-			  	if(! response.changes){
+			  	if(! changes){
 			  		console.log("HEALTHTRANSLATOR: Something went wrong.");
 			  	}
 
@@ -598,7 +611,6 @@ $(document).ready(function(){
 			  		}
 			  	}
 			  	
-
 
 			  	if(changes.length > 0){
 			  		split.push(htmlEscape(node.nodeValue.substring(0, changes[0].start)));
@@ -649,6 +661,19 @@ $(document).ready(function(){
 				}
 
 				if(isProcessFinished()){
+					//count unique concepts
+					var cuis = {};
+					var $concepts = $('x-health-translator.medical-term-translate');
+					$concepts.each(function(){
+						var cui = $(this).attr('data-cui');
+						//console.log(cui);
+						if( ! cuis.hasOwnProperty(cui))
+							cuis[cui] = true;
+						/*else
+							console.log("Already exists!");*/
+					});
+					console.log("UNIQUE COUNTER: " + Object.keys(cuis).length);
+					
 					observeMutations();
 				}
 		  	});
@@ -664,4 +689,26 @@ $(document).ready(function(){
 	        .replace(/>/g, '&gt;')
 	        .replace(/\//g, '&#x2F;');
 	}
+
+	chrome.runtime.sendMessage({action: "getExecutionMode"}, function(response){
+		if(response == "always"){
+			console.log("INIT (ALWAYS)");
+			init();
+		}else{
+			if(window.translate == true){
+				window.translate = false;
+				init();
+			}
+			else{
+				chrome.runtime.onMessage.removeListener(listenerInitBeforeDOM);
+				chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+				    if (request.action == "init"){
+				    	console.log("INIT!");
+			        	init();
+				    }
+				});
+			}
+		}
+	});
+
 });

@@ -132,6 +132,16 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         case 'getColor':
             sendResponse(settings.get("concept_color"));
             break;
+        case 'getExecutionMode':
+            var mode = settings.get("mode");
+            if(mode == "always"){
+                chrome.browserAction.setBadgeText({
+                    text: "...", 
+                    tabId: sender.tab.id
+                });
+            }
+            sendResponse(mode);
+            break;
     }
 
     return;
@@ -325,89 +335,14 @@ function browserActionCallback(tab){
                 text: "...", 
                 tabId: tab.id
             });
-            injectScriptsAndCSS(tab.id);
+            //injectScriptsAndCSS(tab.id);
+            chrome.tabs.sendMessage(tab.id, {action: "init"});
         }else{
             chrome.tabs.sendMessage(tab.id, {type:"process", alert: "This page was already processed"});
             //alert("This page was already processed.");
         }
 
     });
-}
-
-function tabUpdatedCallback(tabId, changeInfo, tab){
-    //console.log("STATUS:" + JSON.stringify(changeInfo));
-    //console.log("TAB:" + JSON.stringify(tab));
-    if (changeInfo.status == 'complete' && tab.status == 'complete' && tab.url != undefined && tab.url.substring(0, 9) !== 'chrome://') {
-        chrome.tabs.sendMessage(tab.id, {check: "check"}, function(response) {
-            if (response) {
-                console.log("Already there");
-            }
-            else {
-                console.log("Not there, inject contentscript");
-                chrome.browserAction.setBadgeText({
-                    text: "...", 
-                    tabId: tab.id
-                });
-                injectScriptsAndCSS(tabId);
-            }
-        });
-    }
-}
-
-function injectScriptsAndCSS(tabId){
-    console.log("EXECUTED SCRIPTS");
-
-    insertCSS(tabId, [
-        { file: "css/scoped-health-translator.css" },
-        { file: "css/bootstrap-treeview.min.css" },
-        { file: "css/bootstrap-stars.css" },
-        { file: "css/contentscript.css" }
-    ]);
-
-    executeScripts(tabId, [
-        //{ file: "js/libs/jquery.min.js" }, //JQUERY IS ALREADY INJECTED ON EVERY PAGE
-        { file: "js/libs/bootstrap.js" },
-        { file: "js/libs/bootstrap-treeview.min.js" },
-        { file: "js/libs/jquery.barrating.min.js" },
-        { file: "js/i18n.js"},
-        { file: "js/contentscript.js"}
-    ]);
-
-    
-}
-
-function executeScripts(tabId, injectDetailsArray)
-{
-    function createCallback(tabId, injectDetails, innerCallback) {
-        return function () {
-            chrome.tabs.executeScript(tabId, injectDetails, innerCallback);
-        };
-    }
-
-    var callback = null;
-
-    for (var i = injectDetailsArray.length - 1; i >= 0; --i)
-        callback = createCallback(tabId, injectDetailsArray[i], callback);
-
-    if (callback !== null)
-        callback();   // execute outermost function
-}
-
-function insertCSS(tabId, injectDetailsArray)
-{
-    function createCallback(tabId, injectDetails, innerCallback) {
-        return function () {
-            chrome.tabs.insertCSS(tabId, injectDetails, innerCallback);
-        };
-    }
-
-    var callback = null;
-
-    for (var i = injectDetailsArray.length - 1; i >= 0; --i)
-        callback = createCallback(tabId, injectDetailsArray[i], callback);
-
-    if (callback !== null)
-        callback();   // execute outermost function
 }
 
 function changeExecutionMode(){
@@ -417,14 +352,14 @@ function changeExecutionMode(){
         chrome.browserAction.setTitle({
             title: chrome.i18n.getMessage("manualProcess")
         });
-        chrome.tabs.onUpdated.removeListener(tabUpdatedCallback);
+        //chrome.tabs.onUpdated.removeListener(tabUpdatedCallback);
         chrome.browserAction.onClicked.addListener(browserActionCallback);
     }else if(mode == 'always'){
         chrome.browserAction.setTitle({
             title: chrome.i18n.getMessage("automaticProcess")
         });
         chrome.browserAction.onClicked.removeListener(browserActionCallback);
-        chrome.tabs.onUpdated.addListener(tabUpdatedCallback);
+        //chrome.tabs.onUpdated.addListener(tabUpdatedCallback);
     }
 }
 

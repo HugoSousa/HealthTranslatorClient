@@ -8,8 +8,14 @@ if (typeof jQuery === 'undefined') {
   throw new Error('Bootstrap\'s JavaScript requires jQuery')
 }
 
+
 +function ($) {
   'use strict';
+  var bootstrap3_enabled = (typeof $().emulateTransitionEnd == 'function');
+  if(bootstrap3_enabled == false){
+    throw new Error('Bootstrap 3 is already included');
+  }
+
   var version = $.fn.jquery.split(' ')[0].split('.')
   if ((version[0] < 2 && version[1] < 9) || (version[0] == 1 && version[1] == 9 && version[2] < 1) || (version[0] > 2)) {
     throw new Error('Bootstrap\'s JavaScript requires jQuery version 1.9.1 or higher, but lower than version 3')
