@@ -12,7 +12,7 @@ if (typeof jQuery === 'undefined') {
 +function ($) {
   'use strict';
   var bootstrap3_enabled = (typeof $().emulateTransitionEnd == 'function');
-  if(bootstrap3_enabled == false){
+  if(bootstrap3_enabled == true){
     throw new Error('Bootstrap 3 is already included');
   }
 
